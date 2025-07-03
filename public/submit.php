@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../classes/Article.php';
+require_once __DIR__ . '/../classes/Database.php';
 
 $errors = [];
 $title = '';
@@ -16,29 +16,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($content === '') $errors[] = "Content is required.";
 
     if (empty($errors)) {
-        // Load existing
-        $file = __DIR__ . '/../storage/articles.json';
-        $articles = Article::loadAll();
+        try {
+            $pdo = Database::getConnection();
 
-        // Determine next ID
-        $last = end($articles);
-        $nextId = $last ? $last->id + 1 : 1;
+            $stmt = $pdo->prepare("
+                INSERT INTO articles (title, author, body, created_at)
+                VALUES (:title, :author, :body, NOW())
+            ");
 
-        // Add new article
-        $new = [
-            'id' => $nextId,
-            'title' => $title,
-            'author' => $author,
-            'date' => date('Y-m-d'),
-            'content' => $content
-        ];
-        $articles[] = new Article($new);
+            $stmt->execute([
+                ':title' => $title,
+                ':author' => $author,
+                ':body' => $content
+            ]);
 
-        // Save to JSON
-        file_put_contents($file, json_encode($articles, JSON_PRETTY_PRINT));
-
-        header("Location: index.php");
-        exit;
+            header("Location: index.php");
+            exit;
+        } catch (PDOException $e) {
+            $errors[] = "Database error: " . $e->getMessage();
+        }
     }
 }
 ?>

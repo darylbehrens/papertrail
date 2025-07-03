@@ -25,6 +25,7 @@
   border-radius: 4px;
   z-index: 10;
   transition: left 0.3s ease, transform 0.3s ease;
+  transition: transform 0.3s ease;
 }
 
 .layout.collapsed .sidebar {
@@ -46,5 +47,5 @@
 .layout.collapsed .sidebar-toggle {
   right: auto;
   left: 50%;
-  transform: translateX(-50%);
+  transform: translateX(-50%) rotate(90deg);
 }

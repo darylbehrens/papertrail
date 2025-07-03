@@ -89,10 +89,9 @@
 
         function toggleSidebar() {
             const layout = document.querySelector('.layout');
-            const button = document.querySelector('.sidebar-toggle');
-            const isCollapsed = layout.classList.toggle('collapsed');
-            button.textContent = isCollapsed ? '➡️' : '☰';
+            layout.classList.toggle('collapsed');
         }
+
     </script>
 
 </body>
