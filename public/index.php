@@ -66,8 +66,14 @@
                         </h2>
                         <p><em>By <?= htmlspecialchars($article->author) ?> on <?= $article->date ?></em></p>
                         <p><?= nl2br(htmlspecialchars($article->getSummary())) ?></p>
+
+                        <p>
+                            <a href="edit.php?id=<?= $article->id ?>" title="Edit article">🖉 Edit</a> |
+                            <a href="delete.php?id=<?= $article->id ?>" title="Delete article"
+                            onclick="return confirm('Are you sure you want to delete this article?');">🗑️ Delete</a>
+                        </p>
                     </div>
-                <?php endforeach; ?>    
+                <?php endforeach; ?> 
             <?php endif; ?>
 
             <aside class="about">

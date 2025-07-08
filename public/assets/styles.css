@@ -49,3 +49,23 @@
   left: 50%;
   transform: translateX(-50%) rotate(90deg);
 }
+
+.article a {
+  color: #0066cc;
+  text-decoration: none;
+  margin-right: 10px;
+}
+
+.article a:hover {
+  text-decoration: underline;
+}
+
+.article a[title="Delete article"] {
+  color: #cc0000;
+}
+
+.article a {
+  color: #0066cc;
+  text-decoration: none;
+  margin-right: 10px;
+}  
