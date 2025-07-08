@@ -84,9 +84,9 @@ vagrant.log
 /certificates
 
 # Do not send Core Wordpress
-/public/wp/*
-!/public/wp/wp-content/
-/public/wp/wp-content/plugins/akismet/
-/public/wp/wp-content/plugins/hello.php
-/public/wp/wp-content/themes/*
-!/public/wp/wp-content/plugins/papertrail-author-stats/
+/public/*
+!/public/wp-content/
+/public/wp-content/plugins/akismet/
+/public/wp-content/plugins/hello.php
+/public/wp-content/themes/*
+!/public/wp-content/plugins/papertrail-author-stats/
