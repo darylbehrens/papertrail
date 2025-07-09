@@ -1,0 +1,71 @@
+{# templates/page.twig #}
+<!DOCTYPE html>
+<html {{ site.language_attributes }}>
+<head>
+  <meta charset="utf-8">
+  <title>{{ post.title }}</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  {{ function('wp_head') }}
+</head>
+<body>
+  <header>
+    <h1>{{ post.title }}</h1>
+  </header>
+
+  <main class="page-content">
+    {{ post_content|raw }}
+  </main>
+
+  <footer>
+    <p>&copy; {{ "now"|date("Y") }} {{ site.name }}</p>
+  </footer>
+
+  {{ function('wp_footer') }}
+  <script>
+document.addEventListener('DOMContentLoaded', () => {
+  const owlSelect = document.getElementById('owl_species');
+  const protectedInput = document.getElementById('owl_protected');
+  const lookupBtn = document.getElementById('lookup-owl');
+  const infoBox = document.getElementById('owl-info');
+
+  if (!owlSelect || !protectedInput || !lookupBtn || !infoBox) return;
+
+  owlSelect.addEventListener('change', () => {
+    const isProtected = owlSelect.selectedOptions[0].dataset.protected === '1';
+    protectedInput.value = isProtected ? '1' : '0';
+    infoBox.innerHTML = ''; // Clear any previous Wikipedia results
+  });
+
+  lookupBtn.addEventListener('click', async () => {
+    const species = owlSelect.value;
+    if (!species) {
+      infoBox.innerHTML = '<p>Please select a species first.</p>';
+      return;
+    }
+
+    infoBox.innerHTML = '<p>Looking up info for <strong>' + species + '</strong>...</p>';
+
+    const url = `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(species)}`;
+
+    try {
+      const response = await fetch(url);
+      if (!response.ok) throw new Error('Wikipedia lookup failed');
+      const data = await response.json();
+
+      const html = `
+        <h3>${data.title}</h3>
+        ${data.thumbnail ? `<img src="${data.thumbnail.source}" alt="${data.title}" style="max-width:150px;">` : ''}
+        <p>${data.extract}</p>
+        <a href="${data.content_urls.desktop.page}" target="_blank">Read more on Wikipedia</a>
+      `;
+
+      infoBox.innerHTML = html;
+    } catch (err) {
+      infoBox.innerHTML = '<p>Error retrieving owl info.</p>';
+    }
+  });
+});
+</script>
+
+</body>
+</html>

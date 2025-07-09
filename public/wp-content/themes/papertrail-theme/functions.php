@@ -6,7 +6,10 @@ use Timber\Timber;
 
 // Initialize Timber
 Timber::init();
-
+add_filter('timber/locations', function($paths) {
+    $paths[] = __DIR__ . '/templates';
+    return $paths;
+});
 add_action('init', function () {
     if (!get_option('demo_owl_sightings_created')) {
         $species = ['Great Horned Owl', 'Barn Owl', 'Northern Saw-whet Owl', 'Spotted Owl'];
