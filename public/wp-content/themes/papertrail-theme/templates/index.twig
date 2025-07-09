@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html {{ site.language_attributes }}>
+<head>
+  <meta charset="utf-8">
+  <title>{{ site.name }} – Recent Owl Sightings</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  {{ function('wp_head') }}
+</head>
+<body>
+
+  <header>
+    <h1>Welcome to {{ site.name }} 🦉</h1>
+  </header>
+
+  <main class="sightings-list">
+    <div class="owl-cards">
+      {% for post in posts %}
+        <article class="owl-card">
+          {% set title = post.title ?: 'Unknown Species' %}
+          <h2><a href="{{ post.link }}">{{ title }}</a></h2>
+
+          <p><strong>Date:</strong> {{ post.meta('owl_date_spotted') ?: 'Unknown date' }}</p>
+          <p><strong>Location:</strong> {{ post.meta('owl_location') ?: 'Unknown location' }}</p>
+          <p><strong>Notes:</strong> {{ post.meta('owl_notes') ?: 'No notes provided' }}</p>
+        </article>
+      {% else %}
+        <p>No owl sightings found.</p>
+      {% endfor %}
+    </div>
+  </main>
+
+  <footer>
+    <p>&copy; {{ "now"|date("Y") }} {{ site.name }}</p>
+  </footer>
+
+  {{ function('wp_footer') }}
+</body>
+</html>
