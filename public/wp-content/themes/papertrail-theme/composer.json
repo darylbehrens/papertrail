@@ -1,0 +1,11 @@
+{
+    "name": "daryl/papertrail-theme",
+    "autoload": {
+        "psr-4": {
+            "Daryl\\PapertrailTheme\\": "src/"
+        }
+    },
+    "require": {
+        "timber/timber": "^2.3"
+    }
+}

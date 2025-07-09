@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html {{ site.language_attributes }}>
+<head>
+  <meta charset="utf-8">
+  <title>{{ post.title }}</title>
+  {{ function('wp_head') }}
+</head>
+<body>
+
+<article class="owl-single">
+  <h1>{{ post.title ?: 'Unknown Species' }}</h1>
+  <p><strong>Date Spotted:</strong> {{ post.meta('owl_date_spotted') ?: 'Unknown date' }}</p>
+  <p><strong>Species:</strong> {{ post.meta('owl_species') ?: 'Unknown species' }}</p>
+  <p><strong>Location:</strong> {{ post.meta('owl_location') ?: 'Unknown location' }}</p>
+  <p><strong>Notes:</strong> {{ post.meta('owl_notes') ?: 'No notes provided' }}</p>
+</article>
+
+{{ function('wp_footer') }}
+</body>
+</html>
