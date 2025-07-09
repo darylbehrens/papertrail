@@ -365,3 +365,55 @@ function flush_owl_rewrites()
     owl_sightings_register_post_type();
     flush_rewrite_rules();
 }
+
+add_shortcode('owl_sighting_form', function () {
+    if (!is_user_logged_in()) {
+        return '<p>You must be <a href="' . wp_login_url() . '">logged in</a> to submit an owl sighting.</p>';
+    }
+
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['owl_sighting_nonce']) && wp_verify_nonce($_POST['owl_sighting_nonce'], 'submit_owl_sighting')) {
+        $title = sanitize_text_field($_POST['owl_species']);
+        $location = sanitize_text_field($_POST['owl_location']);
+        $date_spotted = sanitize_text_field($_POST['owl_date_spotted']);
+        $notes = sanitize_textarea_field($_POST['owl_notes']);
+        
+        $post_id = wp_insert_post([
+            'post_title' => $title . ' sighting',
+            'post_type' => 'owl_sighting',
+            'post_status' => 'publish',
+            'post_content' => $notes,
+        ]);
+
+        if ($post_id) {
+            update_post_meta($post_id, '_owl_species', $title);
+            update_post_meta($post_id, '_owl_location', $location);
+            update_post_meta($post_id, '_owl_date_spotted', $date_spotted);
+            update_post_meta($post_id, '_owl_notes', $notes);
+
+            if (!empty($_FILES['owl_photo']['name'])) {
+                require_once(ABSPATH . 'wp-admin/includes/file.php');
+                require_once(ABSPATH . 'wp-admin/includes/image.php');
+                $attachment_id = media_handle_upload('owl_photo', $post_id);
+                if (!is_wp_error($attachment_id)) {
+                    set_post_thumbnail($post_id, $attachment_id);
+                }
+            }
+
+            return '<p>Thank you! Your sighting has been recorded.</p>';
+        }
+    }
+
+    ob_start();
+    ?>
+    <form method="post" enctype="multipart/form-data">
+        <?php wp_nonce_field('submit_owl_sighting', 'owl_sighting_nonce'); ?>
+        <p><label>Species: <input type="text" name="owl_species" required></label></p>
+        <p><label>Location: <input type="text" name="owl_location" required></label></p>
+        <p><label>Date/Time: <input type="datetime-local" name="owl_date_spotted" required></label></p>
+        <p><label>Notes:<br><textarea name="owl_notes" rows="4" cols="40"></textarea></label></p>
+        <p><label>Photo: <input type="file" name="owl_photo"></label></p>
+        <p><button type="submit">Submit Sighting</button></p>
+    </form>
+    <?php
+    return ob_get_clean();
+});
