@@ -83,10 +83,19 @@ vagrant.log
 /www/default/database-admin/config.inc.custom.php
 /certificates
 
-# Do not send Core Wordpress
+# Do not send Core WordPress
 /public/*
 !/public/wp-content/
+
+# Ignore default plugins, but allow custom ones
 /public/wp-content/plugins/akismet/
 /public/wp-content/plugins/hello.php
+
+# ✅ Allow themes and plugins folders
 /public/wp-content/themes/*
+!/public/wp-content/themes/papertrail-theme/
+!/public/wp-content/themes/papertrail-theme/**
+!/public/wp-content/plugins/
+!/public/wp-content/plugins/owl-sightings/**
 !/public/wp-content/plugins/papertrail-author-stats/
+/public/wp-content/debug.log
