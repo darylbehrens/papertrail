@@ -14,6 +14,8 @@ if (!empty($_GET['species'])) {
         'compare' => '='
     ];
 }
+$context['selected_species'] = isset($_GET['species']) ? sanitize_text_field($_GET['species']) : '';
+
 
 // 🏞️ Filter by location
 if (!empty($_GET['location'])) {
@@ -66,4 +68,5 @@ $context['all_locations'] = array_unique(array_filter(array_map(function ($p) {
     return get_post_meta($p->ID, 'owl_location', true);
 }, get_posts(['post_type' => 'owl_sighting', 'numberposts' => -1]))));
 
+$context['species'] = $context['all_species'];
 Timber::render('archive-owl_sighting.twig', $context);

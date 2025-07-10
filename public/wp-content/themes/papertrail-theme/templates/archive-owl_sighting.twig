@@ -3,41 +3,16 @@
 {% block content %}
   <h1>Owl Sightings</h1>
 
-  <form method="get" class="owl-sighting-filters" style="margin-bottom: 1em;">
-    <label>
-      Species:
-      <select name="species">
-        <option value="">All</option>
-        {% for sp in all_species %}
-          <option value="{{ sp }}" {{ sp == app.request.get('species') ? 'selected' : '' }}>{{ sp }}</option>
-        {% endfor %}
-      </select>
-    </label>
-
-    <label>
-      Location:
-      <select name="location">
-        <option value="">All</option>
-        {% for loc in all_locations %}
-          <option value="{{ loc }}" {{ loc == app.request.get('location') ? 'selected' : '' }}>{{ loc }} County</option>
-        {% endfor %}
-      </select>
-    </label>
-
-    <label>
-      Date Range:
-      <select name="range">
-        {% set current_range = app.request.get('range') %}
-        <option value="1week"  {{ current_range == '1week'  ? 'selected' : '' }}>Last Week</option>
-<option value="1month" {{ current_range == '1month' ? 'selected' : '' }}>Last Month</option>
-<option value="1year"  {{ current_range == '1year'  ? 'selected' : '' }}>Last Year</option>
-
-        <option value="all" {{ current_range in ['all', '', null] ? 'selected' : '' }}>All Time</option>
-      </select>
-    </label>
-
-    <button type="submit">Filter</button>
-  </form>
+ <form method="get" id="owl-filter-form" style="margin-bottom: 2em;">
+  <label for="species">Species:
+    <select name="species" onchange="document.getElementById('owl-filter-form').submit();">
+      <option value="">-- All Species --</option>
+      {% for s in species %}
+        <option value="{{ s }}" {% if s == selected_species %}selected{% endif %}>{{ s }}</option>
+      {% endfor %}
+    </select>
+  </label>
+</form>
 
   {% if sightings is not empty %}
     {% for sighting in sightings %}
