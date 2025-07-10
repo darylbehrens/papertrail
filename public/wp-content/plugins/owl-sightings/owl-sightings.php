@@ -407,7 +407,17 @@ function owl_sighting_save_meta_boxes($post_id)
     if (isset($_POST['owl_location']))
         update_post_meta($post_id, 'owl_location', sanitize_text_field($_POST['owl_location']));
     if (isset($_POST['owl_date_spotted']))
-        update_post_meta($post_id, 'owl_date_spotted', sanitize_text_field($_POST['owl_date_spotted']));
+    update_post_meta($post_id, 'owl_date_spotted', sanitize_text_field($_POST['owl_date_spotted']));
+
+if (!empty($_POST['owl_date_spotted'])) {
+    $date = sanitize_text_field($_POST['owl_date_spotted']);
+    wp_update_post([
+        'ID' => $post_id,
+        'post_date' => $date,
+        'post_date_gmt' => get_gmt_from_date($date),
+    ]);
+}
+
     if (isset($_POST['owl_notes']))
         update_post_meta($post_id, 'owl_notes', sanitize_textarea_field($_POST['owl_notes']));
 }
@@ -582,10 +592,44 @@ exit;
             </select>
             <button type="button" id="lookup-owl">🔍 More Info</button>
         </p>
+<div id="wiki-result" style="margin-top: 1rem; border: 1px solid #ccc; padding: 1em; display: none;"></div>
 
-        <div id="owl-info" style="margin: 1em 0;"></div>
 
-        <input type="hidden" name="owl_protected" id="owl_protected" value="0">
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const owlSelect = document.getElementById('owl_species');
+    const lookupBtn = document.getElementById('lookup-owl');
+    const resultDiv = document.getElementById('wiki-result');
+
+    if (!owlSelect || !lookupBtn || !resultDiv) return;
+
+    lookupBtn.addEventListener('click', async () => {
+      const species = owlSelect.value;
+      resultDiv.innerHTML = "🔍 Searching Wikipedia...";
+
+      try {
+        const res = await fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(species)}`);
+        const data = await res.json();
+
+        let html = `<strong>${data.title}</strong><br>`;
+        if (data.thumbnail?.source) {
+          html += `<img src="${data.thumbnail.source}" style="max-width:200px;"><br>`;
+        }
+        html += `<p>${data.extract}</p>`;
+        html += `<p><a href="${data.content_urls.desktop.page}" target="_blank">Read more</a></p>`;
+
+        resultDiv.style.display = "block"; 
+        resultDiv.innerHTML = html;
+      } catch (err) {
+        resultDiv.innerHTML = "❌ Failed to fetch Wikipedia info.";
+        console.error(err);
+      }
+    });
+  });
+</script>
+
+        <input type="hidden" name="owl_protected" id="protected_species" value="0">
+
 
         <p>
             <label>County (Oregon only):
