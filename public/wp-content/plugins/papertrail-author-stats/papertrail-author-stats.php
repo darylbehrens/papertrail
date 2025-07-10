@@ -40,8 +40,10 @@ add_shortcode('author_stats', function () {
     return ob_get_clean();
 });
 
-class Author_Stats_Widget extends WP_Widget {
-    public function __construct() {
+class Author_Stats_Widget extends WP_Widget
+{
+    public function __construct()
+    {
         parent::__construct(
             'author_stats_widget',
             'Author Stats',
@@ -49,7 +51,8 @@ class Author_Stats_Widget extends WP_Widget {
         );
     }
 
-    public function widget($args, $instance) {
+    public function widget($args, $instance)
+    {
         $authors = get_users(['who' => 'authors']);
 
         echo $args['before_widget'];
@@ -66,12 +69,14 @@ class Author_Stats_Widget extends WP_Widget {
     }
 }
 
-function register_author_stats_widget() {
+function register_author_stats_widget()
+{
     register_widget('Author_Stats_Widget');
 }
 add_action('widgets_init', 'register_author_stats_widget');
 
-function papertrail_widget_styles() {
+function papertrail_widget_styles()
+{
     echo '<style>
         .widget_author_stats ul {
             list-style-type: none;

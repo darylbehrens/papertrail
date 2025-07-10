@@ -1,42 +1,61 @@
-<!DOCTYPE html>
-<html {{ site.language_attributes }}>
-<head>
-  <meta charset="utf-8">
-  <title>{{ title }}</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  {{ function('wp_head') }}
-</head>
-<body>
+{% extends "base.twig" %}
 
-  <header>
-    <h1>{{ title }}</h1>
-  </header>
+{% block content %}
+  <h1>Owl Sightings</h1>
 
-<main class="sightings-list">
-  {% if post.post_type == 'page' %}
-    {{ post.content }}
+  <form method="get" class="owl-sighting-filters" style="margin-bottom: 1em;">
+    <label>
+      Species:
+      <select name="species">
+        <option value="">All</option>
+        {% for sp in all_species %}
+          <option value="{{ sp }}" {{ sp == app.request.get('species') ? 'selected' : '' }}>{{ sp }}</option>
+        {% endfor %}
+      </select>
+    </label>
+
+    <label>
+      Location:
+      <select name="location">
+        <option value="">All</option>
+        {% for loc in all_locations %}
+          <option value="{{ loc }}" {{ loc == app.request.get('location') ? 'selected' : '' }}>{{ loc }} County</option>
+        {% endfor %}
+      </select>
+    </label>
+
+    <label>
+      Date Range:
+      <select name="range">
+        {% set current_range = app.request.get('range') %}
+        <option value="day" {{ current_range == 'day' ? 'selected' : '' }}>Last 24 Hours</option>
+        <option value="week" {{ current_range == 'week' ? 'selected' : '' }}>Last Week</option>
+        <option value="month" {{ current_range == 'month' ? 'selected' : '' }}>Last Month</option>
+        <option value="year" {{ current_range == 'year' ? 'selected' : '' }}>Last Year</option>
+        <option value="all" {{ current_range in ['all', '', null] ? 'selected' : '' }}>All Time</option>
+      </select>
+    </label>
+
+    <button type="submit">Filter</button>
+  </form>
+
+  {% if sightings is not empty %}
+    {% for sighting in sightings %}
+      <div class="owl-card">
+        <h3><a href="{{ sighting.link }}">{{ sighting.title }}</a></h3>
+        <p><strong>Date:</strong> {{ sighting.meta('owl_date_spotted')|default('Unknown') }}</p>
+        <p><strong>Location:</strong>
+          {% set is_protected = sighting.meta('owl_protected') %}
+          {% if is_protected in ['', '0', false, 0, null] %}
+            {{ sighting.meta('owl_location')|default('Unknown') }}
+          {% else %}
+            Protected
+          {% endif %}
+        </p>
+        <p><strong>Notes:</strong> {{ sighting.meta('owl_notes')|default('') }}</p>
+      </div>
+    {% endfor %}
   {% else %}
-    <div class="owl-cards">
-      {% for post in posts %}
-        {% set title = post.title ?: 'Unknown Species' %}
-        <article class="owl-card">
-          <h2><a href="{{ post.link }}">{{ title }}</a></h2>
-          <p><strong>Date:</strong> {{ post.meta('owl_date_spotted') ?: 'Unknown date' }}</p>
-          <p><strong>Location:</strong> {{ post.meta('owl_location') ?: 'Unknown location' }}</p>
-          <p><strong>Notes:</strong> {{ post.meta('owl_notes') ?: 'No notes provided' }}</p>
-        </article>
-      {% else %}
-        <p>No owl sightings found.</p>
-      {% endfor %}
-    </div>
+    <p>No sightings found with current filters.</p>
   {% endif %}
-</main>
-
-
-  <footer>
-    <p>&copy; {{ "now"|date("Y") }} {{ site.name }}</p>
-  </footer>
-
-  {{ function('wp_footer') }}
-</body>
-</html>
+{% endblock %}

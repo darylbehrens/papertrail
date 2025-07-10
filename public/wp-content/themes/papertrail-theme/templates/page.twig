@@ -1,71 +1,158 @@
-{# templates/page.twig #}
 <!DOCTYPE html>
 <html {{ site.language_attributes }}>
-<head>
-  <meta charset="utf-8">
-  <title>{{ post.title }}</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  {{ function('wp_head') }}
-</head>
-<body>
-  <header>
-    <h1>{{ post.title }}</h1>
-  </header>
+	<head>
+		<meta charset="utf-8">
+		<title>{{ post.title }}</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		{{ function('wp_head') }}
+		<style>
+			html,
+			body {
+				margin: 0;
+				padding: 0;
+				height: 100%;
+			}
+			body {
+				display: flex;
+				min-height: 100vh;
+				font-family: sans-serif;
+				background: #fff;
+			}
+			.sidebar {
+				width: 220px;
+				background: #111;
+				color: white;
+				display: flex;
+				flex-direction: column;
+				padding: 1rem 0;
+			}
+			.sidebar h1 {
+				color: white;
+				font-size: 1.3rem;
+				text-align: center;
+				margin: 0 0 1.5rem;
+				padding: 0 1rem;
+			}
+			.sidebar-nav {
+				list-style: none;
+				padding: 0;
+				margin: 0;
+			}
+			.sidebar-nav a {
+				display: block;
+				color: white;
+				text-decoration: none;
+				padding: 0.75rem 1rem;
+				transition: background 0.2s ease;
+			}
+			.sidebar-nav a:hover {
+				background: #333;
+			}
+			.page-content {
+				flex: 1;
+				padding: 2rem;
+			}
+			.owl-card {
+				border: 1px solid #ccc;
+				border-radius: 5px;
+				margin-bottom: 1.5rem;
+				padding: 1rem;
+				background: #f9f9f9;
+			}
+			.owl-card img {
+				max-width: 150px;
+				display: block;
+				margin-top: 0.5rem;
+			}
+			.wiki-result {
+				margin-top: 0.5rem;
+			}
+		</style>
+	</head>
+	<body>
+		<aside class="sidebar">
+			<h1>🦉 Papertrail</h1>
+			{{ function('wp_nav_menu', {
+      'theme_location': 'main_menu',
+      'menu_class': '',
+      'container': false,
+      'items_wrap': '<ul class="sidebar-nav">%3$s</ul>'
+    }) }}
+		</aside>
 
-  <main class="page-content">
-    {{ post_content|raw }}
-  </main>
+		<main class="page-content">
+			<h2>{{ post.title }}</h2>
 
-  <footer>
-    <p>&copy; {{ "now"|date("Y") }} {{ site.name }}</p>
-  </footer>
+			{% if sightings is defined and sightings %}
+				{% for sighting in sightings %}
+					<div class="owl-card" data-species="{{ sighting.title }}">
+						<h3>
+							<a href="{{ sighting.link }}">{{ sighting.title }}</a>
+						</h3>
 
-  {{ function('wp_footer') }}
-  <script>
-document.addEventListener('DOMContentLoaded', () => {
-  const owlSelect = document.getElementById('owl_species');
-  const protectedInput = document.getElementById('owl_protected');
-  const lookupBtn = document.getElementById('lookup-owl');
-  const infoBox = document.getElementById('owl-info');
+						<p>
+							<strong>Date:</strong>
+							{{ sighting.meta('owl_date_spotted')|default('Unknown date') }}</p>
 
-  if (!owlSelect || !protectedInput || !lookupBtn || !infoBox) return;
+						<p>
+							<strong>Location:</strong>
+							{% set is_protected = sighting.meta('owl_protected') %}
+							{% if is_protected in ['', '0', false, 0, null] %}
+								{{ sighting.meta('owl_location')|default('Unknown location') }}
+							{% else %}
+								Protected
+							{% endif %}
+						</p>
 
-  owlSelect.addEventListener('change', () => {
-    const isProtected = owlSelect.selectedOptions[0].dataset.protected === '1';
-    protectedInput.value = isProtected ? '1' : '0';
-    infoBox.innerHTML = ''; // Clear any previous Wikipedia results
-  });
+						<p>
+							<strong>Notes:</strong>
+							{{ sighting.meta('owl_notes')|default('No notes') }}</p>
 
-  lookupBtn.addEventListener('click', async () => {
-    const species = owlSelect.value;
-    if (!species) {
-      infoBox.innerHTML = '<p>Please select a species first.</p>';
-      return;
-    }
+						<button class="wiki-button">More Info</button>
+						<div class="wiki-result"></div>
+					</div>
+				{% endfor %}
+			{% else %}
+				{{ post_content|raw }}
+			{% endif %}
 
-    infoBox.innerHTML = '<p>Looking up info for <strong>' + species + '</strong>...</p>';
-
-    const url = `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(species)}`;
-
-    try {
-      const response = await fetch(url);
-      if (!response.ok) throw new Error('Wikipedia lookup failed');
-      const data = await response.json();
-
-      const html = `
-        <h3>${data.title}</h3>
-        ${data.thumbnail ? `<img src="${data.thumbnail.source}" alt="${data.title}" style="max-width:150px;">` : ''}
-        <p>${data.extract}</p>
-        <a href="${data.content_urls.desktop.page}" target="_blank">Read more on Wikipedia</a>
-      `;
-
-      infoBox.innerHTML = html;
-    } catch (err) {
-      infoBox.innerHTML = '<p>Error retrieving owl info.</p>';
-    }
-  });
-});
-</script>
-
-</body>
-</html>
+			<footer>
+				<p>&copy;
+					{{ "now"|date("Y") }}
+					{{ site.name }}</p>
+			</footer>
+		</main>
+		<script>
+			document.addEventListener('DOMContentLoaded', () => {
+			  const button = document.getElementById('lookup-owl');
+			  const select = document.getElementById('owl_species');
+			  const infoBox = document.getElementById('owl-info');
+			
+			  if (!button || !select || !infoBox) return;
+			
+			  button.addEventListener('click', async () => {
+			    const owlName = select.value;
+			    infoBox.innerHTML = "🔍 Looking up owl information...";
+			
+			    try {
+			      const res = await fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(owlName)}`);
+			      if (!res.ok) throw new Error(`Wikipedia returned ${res.status}`);
+			      const data = await res.json();
+			      infoBox.innerHTML = `
+			        <strong>${data.title}</strong><br>
+			        <p>${data.extract}</p>
+			        ${data.thumbnail ? `<img src="${data.thumbnail.source}" width="120">` : ''}
+			        <p><a href="${data.content_urls.desktop.page}" target="_blank">Read more</a></p>
+			      `;
+			    } catch (err) {
+			      console.error('❌ Wikipedia error:', err);
+			      infoBox.innerHTML = "<p>❌ Could not retrieve Wikipedia info.</p>";
+			    }
+			  });
+			});
+			</script>
+			
+			  {{ function('wp_footer') }}
+			
+			</body>
+			</html>

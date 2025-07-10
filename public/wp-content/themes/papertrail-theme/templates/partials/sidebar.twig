@@ -1,0 +1,43 @@
+<aside class="owl-sidebar">
+  <p style="text-align:right;">
+    <a href="/submit-sighting" class="button" style="background:#0073aa;color:white;padding:0.5em 1em;border-radius:4px;text-decoration:none;">
+      ➕ Submit a New Sighting
+    </a>
+  </p>
+
+  <form method="get" class="owl-sighting-filters" style="margin-bottom: 1em;">
+    <label>
+      Species:
+      <select name="species">
+        <option value="">All</option>
+        {% for sp in species_options %}
+          <option value="{{ sp }}" {% if selected_species == sp %}selected{% endif %}>{{ sp }}</option>
+        {% endfor %}
+      </select>
+    </label>
+
+    <label>
+      County:
+      <select name="location">
+        <option value="">All</option>
+        {% for county in county_options %}
+          <option value="{{ county }}" {% if selected_location == county %}selected{% endif %}>
+            {{ county }} County
+          </option>
+        {% endfor %}
+      </select>
+    </label>
+
+    <label>
+      Date Range:
+      <select name="range">
+        <option value="all" {% if selected_range == 'all' %}selected{% endif %}>All Time</option>
+        <option value="1week" {% if selected_range == '1week' %}selected{% endif %}>Past Week</option>
+        <option value="1month" {% if selected_range == '1month' %}selected{% endif %}>Past Month</option>
+        <option value="1year" {% if selected_range == '1year' %}selected{% endif %}>Past Year</option>
+      </select>
+    </label>
+
+    <button type="submit">Filter</button>
+  </form>
+</aside>

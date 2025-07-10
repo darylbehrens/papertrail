@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html {{ site.language_attributes }}>
+<head>
+  <meta charset="utf-8">
+  <title>{{ post.title }}</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  {{ function('wp_head') }}
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+    }
+    body {
+      display: flex;
+      min-height: 100vh;
+      font-family: sans-serif;
+      background: #fff;
+    }
+    .sidebar {
+      width: 220px;
+      background: #111;
+      color: white;
+      display: flex;
+      flex-direction: column;
+      padding: 1rem 0;
+    }
+    .sidebar h1 {
+      color: white;
+      font-size: 1.3rem;
+      text-align: center;
+      margin: 0 0 1.5rem;
+      padding: 0 1rem;
+    }
+    .sidebar-nav {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    .sidebar-nav a {
+      display: block;
+      color: white;
+      text-decoration: none;
+      padding: 0.75rem 1rem;
+      transition: background 0.2s ease;
+    }
+    .sidebar-nav a:hover {
+      background: #333;
+    }
+    .page-content {
+      flex: 1;
+      padding: 2rem;
+    }
+    .owl-card {
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      margin-bottom: 1.5rem;
+      padding: 1rem;
+      background: #f9f9f9;
+    }
+    .owl-card img {
+      max-width: 150px;
+      display: block;
+      margin-top: 0.5rem;
+    }
+    .wiki-result {
+      margin-top: 0.5rem;
+    }
+  </style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <h1>🦉 Papertrail</h1>
+  {{ function('wp_nav_menu', {
+    'theme_location': 'main_menu',
+    'menu_class': '',
+    'container': false,
+    'items_wrap': '<ul class="sidebar-nav">%3$s</ul>'
+  }) }}
+</aside>
+
+<main class="page-content">
+  {% block content %}{% endblock %}
+</main>
+
+{{ function('wp_footer') }}
+</body>
+</html>

@@ -60,9 +60,13 @@ add_shortcode('owl_sightings', function () {
     if ($has_run)
         return '';
     $has_run = true;
+
+    if (is_user_logged_in()) {
+        echo '<p><a href="' . esc_url(home_url('/submit-sighting')) . '" class="button">➕ Submit New Sighting</a></p>';
+    }
     $species_filter = isset($_GET['species']) ? sanitize_text_field($_GET['species']) : '';
     $range = isset($_GET['range']) ? sanitize_text_field($_GET['range']) : 'all';
-    $county_filter = isset($_GET['county']) ? sanitize_text_field($_GET['county']) : '';
+    $county_filter = isset($_GET['location']) ? sanitize_text_field($_GET['location']) : '';
 
     $date_query = [];
     if ($range === '1week') {
@@ -76,19 +80,19 @@ add_shortcode('owl_sightings', function () {
     $meta_query = [];
     if (!empty($species_filter)) {
         $meta_query[] = [
-            'key' => '_owl_species',
+            'key' => 'owl_species',
             'value' => $species_filter,
             'compare' => '='
         ];
     }
 
     if (!empty($county_filter)) {
-  $meta_query[] = [
-    'key' => '_owl_county',
-    'value' => $county_filter,
-    'compare' => '='
-  ];
-}
+        $meta_query[] = [
+            'key' => 'owl_location',
+            'value' => $county_filter,
+            'compare' => '='
+        ];
+    }
 
     $args = [
         'post_type' => 'owl_sighting',
@@ -102,68 +106,13 @@ add_shortcode('owl_sightings', function () {
     $query = new WP_Query($args);
 
     ob_start();
-echo '<p style="text-align:right;">
+    echo '<p style="text-align:right;">
   <a href="/submit-sighting" class="button" style="background:#0073aa;color:white;padding:0.5em 1em;border-radius:4px;text-decoration:none;">➕ Submit a New Sighting</a>
 </p>';
 
 
     ?>
-    <form method="get" class="owl-sighting-filters" style="margin-bottom: 1em;">
-        <label>
-            Species:
-            <select name="species">
-                <option value="">All</option>
-                <?php
-                $species_values = get_posts([
-                    'post_type' => 'owl_sighting',
-                    'numberposts' => -1,
-                    'fields' => 'ids',
-                ]);
-                $all_species = [];
-
-                foreach ($species_values as $id) {
-                    $sp = get_post_meta($id, '_owl_species', true);
-                    if (!empty($sp)) {
-                        $all_species[] = $sp;
-                    }
-                }
-
-                $unique_species = array_unique($all_species);
-                sort($unique_species);
-
-                foreach ($unique_species as $sp) {
-                    echo '<option value="' . esc_attr($sp) . '"' . selected($species_filter, $sp, false) . '>' . esc_html($sp) . '</option>';
-                }
-                ?>
-            </select>
-            <label>
-                County:
-                <select name="county">
-                    <option value="">All</option>
-                    <?php
-                    $oregon_counties = get_oregon_counties();
-                    $selected_county = isset($_GET['county']) ? sanitize_text_field($_GET['county']) : '';
-                    foreach ($oregon_counties as $county) {
-                        echo '<option value="' . esc_attr($county) . '"' . selected($selected_county, $county, false) . '>' . esc_html($county) . ' County</option>';
-                    }
-                    ?>
-                </select>
-            </label>
-
-        </label>
-
-        <label>
-            Date Range:
-            <select name="range">
-                <option value="all" <?php selected($range, 'all'); ?>>All Time</option>
-                <option value="1week" <?php selected($range, '1week'); ?>>Past Week</option>
-                <option value="1month" <?php selected($range, '1month'); ?>>Past Month</option>
-                <option value="1year" <?php selected($range, '1year'); ?>>Past Year</option>
-            </select>
-        </label>
-
-        <button type="submit">Filter</button>
-    </form>
+   
     <?php
 
     if (!$query->have_posts()) {
@@ -173,11 +122,11 @@ echo '<p style="text-align:right;">
         while ($query->have_posts()):
             $query->the_post();
             $id = get_the_ID();
-            $species = get_post_meta($id, '_owl_species', true);
-            $date = get_post_meta($id, '_owl_date_spotted', true);
-            $notes = get_post_meta($id, '_owl_notes', true);
-            $location = get_post_meta($id, '_owl_location', true);
-            $is_protected = get_post_meta($id, '_owl_protected', true);
+            $species = get_post_meta($id, 'owl_species', true);
+            $date = get_post_meta($id, 'owl_date_spotted', true);
+            $notes = get_post_meta($id, 'owl_notes', true);
+            $location = get_post_meta($id, 'owl_location', true);
+            $is_protected = get_post_meta($id, 'owl_protected', true);
             $image_url = get_the_post_thumbnail_url($id, 'medium');
 
             echo '<div class="owl-sighting">';
@@ -227,7 +176,7 @@ function owl_sightings_register_post_type()
         'labels' => $labels,
         'public' => true,
         'has_archive' => true,
-        'rewrite' => ['slug' => 'owl-sightings'],
+        'rewrite' => ['slug' => 'sightings'],
         'supports' => ['title', 'editor', 'custom-fields'],
         'show_in_rest' => true,
     ];
@@ -253,10 +202,10 @@ function owl_sighting_add_meta_boxes()
 
 function owl_sighting_meta_box_html($post)
 {
-    $selected_species = get_post_meta($post->ID, '_owl_species', true);
-    $location = get_post_meta($post->ID, '_owl_location', true);
-    $date_spotted = get_post_meta($post->ID, '_owl_date_spotted', true);
-    $notes = get_post_meta($post->ID, '_owl_notes', true);
+    $selected_species = get_post_meta($post->ID, 'owl_species', true);
+    $location = get_post_meta($post->ID, 'owl_location', true);
+    $date_spotted = get_post_meta($post->ID, 'owl_date_spotted', true);
+    $notes = get_post_meta($post->ID, 'owl_notes', true);
     wp_nonce_field('owl_sighting_nonce_action', 'owl_sighting_nonce');
     ?>
     <p>
@@ -296,68 +245,68 @@ function owl_sighting_meta_box_html($post)
     </p>
 
     <script>
-document.addEventListener('DOMContentLoaded', () => {
-  const owlSelect = document.getElementById('owl_species');
-  const protectedInput = document.getElementById('owl_protected');
-  const lookupBtn = document.getElementById('lookup-owl');
+        document.addEventListener('DOMContentLoaded', () => {
+            const owlSelect = document.getElementById('owl_species');
+            const protectedInput = document.getElementById('owl_protected');
+            const lookupBtn = document.getElementById('lookup-owl');
 
-  const sidePanel = document.getElementById('owl_side_panel');
-  const closeBtn = document.getElementById('close_owl_panel');
-  const spinner = document.getElementById('owl_panel_spinner');
-  const contentBox = document.getElementById('owl_panel_content');
-  const img = document.getElementById('owl_panel_img');
-  const summary = document.getElementById('owl_panel_summary');
-  const link = document.getElementById('owl_panel_link');
+            const sidePanel = document.getElementById('owl_side_panel');
+            const closeBtn = document.getElementById('close_owl_panel');
+            const spinner = document.getElementById('owl_panel_spinner');
+            const contentBox = document.getElementById('owl_panel_content');
+            const img = document.getElementById('owl_panel_img');
+            const summary = document.getElementById('owl_panel_summary');
+            const link = document.getElementById('owl_panel_link');
 
-  if (!owlSelect || !protectedInput || !lookupBtn) return;
+            if (!owlSelect || !protectedInput || !lookupBtn) return;
 
-  owlSelect.addEventListener('change', () => {
-    const isProtected = owlSelect.selectedOptions[0].dataset.protected === '1';
-    protectedInput.value = isProtected ? '1' : '0';
-  });
+            owlSelect.addEventListener('change', () => {
+                const isProtected = owlSelect.selectedOptions[0].dataset.protected === '1';
+                protectedInput.value = isProtected ? '1' : '0';
+            });
 
-  lookupBtn.addEventListener('click', async () => {
-    const species = owlSelect.value;
-    if (!species) return;
+            lookupBtn.addEventListener('click', async () => {
+                const species = owlSelect.value;
+                if (!species) return;
 
-    // Reset panel
-    img.src = '';
-    summary.textContent = '';
-    link.href = '#';
-    link.textContent = '';
-    spinner.style.display = 'block';
-    contentBox.style.display = 'none';
-    sidePanel.classList.add('open');
+                // Reset panel
+                img.src = '';
+                summary.textContent = '';
+                link.href = '#';
+                link.textContent = '';
+                spinner.style.display = 'block';
+                contentBox.style.display = 'none';
+                sidePanel.classList.add('open');
 
-    try {
-      const url = `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(species)}`;
-      const response = await fetch(url);
-      if (!response.ok) throw new Error('Wiki fetch failed');
-      const data = await response.json();
+                try {
+                    const url = `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(species)}`;
+                    const response = await fetch(url);
+                    if (!response.ok) throw new Error('Wiki fetch failed');
+                    const data = await response.json();
 
-      if (data.thumbnail?.source) {
-        img.src = data.thumbnail.source;
-        img.alt = species;
-      }
+                    if (data.thumbnail?.source) {
+                        img.src = data.thumbnail.source;
+                        img.alt = species;
+                    }
 
-      summary.textContent = data.extract;
-      link.href = data.content_urls.desktop.page;
-      link.textContent = 'Read more on Wikipedia';
+                    summary.textContent = data.extract;
+                    link.href = data.content_urls.desktop.page;
+                    link.textContent = 'Read more on Wikipedia';
 
-      contentBox.style.display = 'block';
-    } catch (err) {
-      summary.textContent = 'No information found for this owl.';
-      contentBox.style.display = 'block';
-    } finally {
-      spinner.style.display = 'none';
-    }
-  });
+                    contentBox.style.display = 'block';
+                } catch (err) {
+                    summary.textContent = 'No information found for this owl.';
+                    contentBox.style.display = 'block';
+                } finally {
+                    spinner.style.display = 'none';
+                }
+            });
 
-  closeBtn.addEventListener('click', () => {
-    sidePanel.classList.remove('open');
-  });
-});
-</script>
+            closeBtn.addEventListener('click', () => {
+                sidePanel.classList.remove('open');
+            });
+        });
+    </script>
 
     <style>
         #owl_side_panel {
@@ -454,14 +403,16 @@ function owl_sighting_save_meta_boxes($post_id)
         return;
 
     if (isset($_POST['owl_species']))
-        update_post_meta($post_id, '_owl_species', sanitize_text_field($_POST['owl_species']));
+        update_post_meta($post_id, 'owl_species', sanitize_text_field($_POST['owl_species']));
     if (isset($_POST['owl_location']))
-        update_post_meta($post_id, '_owl_location', sanitize_text_field($_POST['owl_location']));
+        update_post_meta($post_id, 'owl_location', sanitize_text_field($_POST['owl_location']));
     if (isset($_POST['owl_date_spotted']))
-        update_post_meta($post_id, '_owl_date_spotted', sanitize_text_field($_POST['owl_date_spotted']));
+        update_post_meta($post_id, 'owl_date_spotted', sanitize_text_field($_POST['owl_date_spotted']));
     if (isset($_POST['owl_notes']))
-        update_post_meta($post_id, '_owl_notes', sanitize_textarea_field($_POST['owl_notes']));
+        update_post_meta($post_id, 'owl_notes', sanitize_textarea_field($_POST['owl_notes']));
 }
+
+
 
 add_action('rest_api_init', function () {
     register_rest_route('owl/v1', '/species', [
@@ -574,7 +525,7 @@ add_shortcode('owl_sighting_form', function () {
         wp_verify_nonce($_POST['owl_sighting_nonce'], 'submit_owl_sighting')
     ) {
 
-        $county = isset($_POST['owl_county']) ? sanitize_text_field($_POST['owl_county']) : '';
+        
 
 
         $title = sanitize_text_field($_POST['owl_species']);
@@ -582,7 +533,7 @@ add_shortcode('owl_sighting_form', function () {
         $date_spotted = sanitize_text_field($_POST['owl_date_spotted']);
         $notes = sanitize_textarea_field($_POST['owl_notes']);
         $protected = isset($_POST['owl_protected']) ? sanitize_text_field($_POST['owl_protected']) : '0';
-
+error_log('🔍 Form POST: ' . print_r($_POST, true));
         $post_id = wp_insert_post([
             'post_title' => $title . ' sighting',
             'post_type' => 'owl_sighting',
@@ -591,12 +542,11 @@ add_shortcode('owl_sighting_form', function () {
         ]);
 
         if ($post_id) {
-            update_post_meta($post_id, '_owl_species', $title);
-            update_post_meta($post_id, '_owl_location', $location);
-            update_post_meta($post_id, '_owl_date_spotted', $date_spotted);
-            update_post_meta($post_id, '_owl_notes', $notes);
-            update_post_meta($post_id, '_owl_protected', $protected);
-            update_post_meta($post_id, '_owl_county', $county);
+            update_post_meta($post_id, 'owl_species', $title);
+            update_post_meta($post_id, 'owl_date_spotted', $date_spotted);
+            update_post_meta($post_id, 'owl_notes', $notes);
+            update_post_meta($post_id, 'owl_protected', $protected);
+            update_post_meta($post_id, 'owl_location', $location);
             if (!empty($_FILES['owl_photo']['name'])) {
                 require_once(ABSPATH . 'wp-admin/includes/file.php');
                 require_once(ABSPATH . 'wp-admin/includes/image.php');
@@ -606,7 +556,8 @@ add_shortcode('owl_sighting_form', function () {
                 }
             }
 
-            return '<p>✅ Thank you! Your sighting has been recorded.</p>';
+           wp_redirect(site_url('/sightings'));
+exit;
         }
     }
 
@@ -638,7 +589,7 @@ add_shortcode('owl_sighting_form', function () {
 
         <p>
             <label>County (Oregon only):
-                <select name="owl_county" required>
+                <select name="owl_location" required>
                     <option value="">-- Select a County --</option>
                     <?php
                     $oregon_counties = get_oregon_counties();
@@ -649,22 +600,23 @@ add_shortcode('owl_sighting_form', function () {
                 </select>
             </label>
         </p>
+       
 
         <p><label>Date/Time: <input type="datetime-local" name="owl_date_spotted" required></label></p>
         <p><label>Notes:<br><textarea name="owl_notes" rows="4" cols="40"></textarea></label></p>
         <p><label>Photo: <input type="file" name="owl_photo"></label></p>
         <p><button type="submit">Submit Sighting</button></p>
         <div id="owl_side_panel">
-  <div id="owl_side_panel_inner">
-    <button id="close_owl_panel">&times;</button>
-    <div id="owl_panel_spinner">Loading info...</div>
-    <div id="owl_panel_content" style="display: none;">
-      <img id="owl_panel_img" src="" alt="" />
-      <div id="owl_panel_summary"></div>
-      <a id="owl_panel_link" href="#" target="_blank">Read more on Wikipedia</a>
-    </div>
-  </div>
-</div>
+            <div id="owl_side_panel_inner">
+                <button id="close_owl_panel">&times;</button>
+                <div id="owl_panel_spinner">Loading info...</div>
+                <div id="owl_panel_content" style="display: none;">
+                    <img id="owl_panel_img" src="" alt="" />
+                    <div id="owl_panel_summary"></div>
+                    <a id="owl_panel_link" href="#" target="_blank">Read more on Wikipedia</a>
+                </div>
+            </div>
+        </div>
 
     </form>
     <?php

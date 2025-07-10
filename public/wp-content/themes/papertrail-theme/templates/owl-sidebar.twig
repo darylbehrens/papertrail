@@ -1,0 +1,31 @@
+<div class="owl-sidebar">
+  <p><a href="/submit-sighting" class="button">➕ Submit New Sighting</a></p>
+
+  <form method="get" class="owl-sighting-filters">
+    <label>Species:
+      <select name="species">
+        <option value="">All</option>
+        <option value="Great Horned Owl">Great Horned Owl</option>
+        <option value="Barn Owl">Barn Owl</option>
+        <!-- You can make this dynamic later -->
+      </select>
+    </label>
+    <label>County:
+      <select name="location">
+        <option value="">All</option>
+        <option value="Multnomah">Multnomah</option>
+        <option value="Lane">Lane</option>
+        <!-- Also make this dynamic later -->
+      </select>
+    </label>
+    <label>Date Range:
+      <select name="range">
+        <option value="all">All Time</option>
+        <option value="1week">Past Week</option>
+        <option value="1month">Past Month</option>
+        <option value="1year">Past Year</option>
+      </select>
+    </label>
+    <button type="submit">Filter</button>
+  </form>
+</div>
