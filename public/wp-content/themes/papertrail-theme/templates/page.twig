@@ -1,214 +1,237 @@
 <!DOCTYPE html>
 <html {{ site.language_attributes }}>
-<head>
-  <meta charset="utf-8">
-  <title>{{ post.title }}</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  {{ function('wp_head') }}
-  <style>
-    html, body {
-      margin: 0;
-      padding: 0;
-      height: 100%;
-    }
-    body {
-      display: flex;
-      min-height: 100vh;
-      font-family: sans-serif;
-      background: #fff;
-    }
-    .sidebar {
-      width: 220px;
-      background: #111;
-      color: white;
-      display: flex;
-      flex-direction: column;
-      padding: 1rem 0;
-    }
-    .sidebar h1 {
-      color: white;
-      font-size: 1.3rem;
-      text-align: center;
-      margin: 0 0 1.5rem;
-      padding: 0 1rem;
-    }
-    .sidebar-nav {
-      list-style: none;
-      padding: 0;
-      margin: 0;
-    }
-    .sidebar-nav a {
-      display: block;
-      color: white;
-      text-decoration: none;
-      padding: 0.75rem 1rem;
-      transition: background 0.2s ease;
-    }
-    .sidebar-nav a:hover {
-      background: #333;
-    }
-    .page-content {
-      flex: 1;
-      padding: 2rem;
-    }
-    .owl-card {
-      border: 1px solid #ccc;
-      border-radius: 5px;
-      margin-bottom: 1.5rem;
-      padding: 1rem;
-      background: #f9f9f9;
-    }
-    .owl-card img {
-      max-width: 150px;
-      display: block;
-      margin-top: 0.5rem;
-    }
-    .wiki-panel {
-      border: 1px solid #aaa;
-      padding: 1em;
-      margin-top: 1em;
-      background: #f4f4f4;
-    }
-  </style>
-</head>
-<body>
-  <aside class="sidebar">
-    <h1>🦉 Papertrail</h1>
-    {{ function('wp_nav_menu', {
+	<head>
+		<meta charset="utf-8">
+		<title>{{ post.title }}</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		{{ function('wp_head') }}
+		<style>
+			html,
+			body {
+				margin: 0;
+				padding: 0;
+				height: 100%;
+			}
+			body {
+				display: flex;
+				min-height: 100vh;
+				font-family: sans-serif;
+				background: #fff;
+			}
+			.sidebar {
+				width: 220px;
+				background: #111;
+				color: white;
+				display: flex;
+				flex-direction: column;
+				padding: 1rem 0;
+			}
+			.sidebar h1 {
+				color: white;
+				font-size: 1.3rem;
+				text-align: center;
+				margin: 0 0 1.5rem;
+				padding: 0 1rem;
+			}
+			.sidebar-nav {
+				list-style: none;
+				padding: 0;
+				margin: 0;
+			}
+			.sidebar-nav a {
+				display: block;
+				color: white;
+				text-decoration: none;
+				padding: 0.75rem 1rem;
+				transition: background 0.2s ease;
+			}
+			.sidebar-nav a:hover {
+				background: #333;
+			}
+			.page-content {
+				flex: 1;
+				padding: 2rem;
+			}
+			.owl-card {
+				border: 1px solid #ccc;
+				border-radius: 5px;
+				margin-bottom: 1.5rem;
+				padding: 1rem;
+				background: #f9f9f9;
+			}
+			.owl-card img {
+				max-width: 150px;
+				display: block;
+				margin-top: 0.5rem;
+			}
+			.wiki-panel {
+				border: 1px solid #aaa;
+				padding: 1em;
+				margin-top: 1em;
+				background: #f4f4f4;
+			}
+		</style>
+	</head>
+	<body>
+		<aside class="sidebar">
+			<h1>🦉 Papertrail</h1>
+			{{ function('wp_nav_menu', {
       'theme_location': 'main_menu',
       'menu_class': '',
       'container': false,
       'items_wrap': '<ul class="sidebar-nav">%3$s</ul>'
     }) }}
-  </aside>
+		</aside>
 
-  <main class="page-content">
-    <h2>{{ post.title }}</h2>
+		<main class="page-content">
+			<h2>{{ post.title }}</h2>
 
-    <!-- 🔍 FILTER FORM -->
-    <form method="get" id="owl-filter-form" style="margin-bottom: 2em;">
-  <label for="species">Species:
-    <select name="species" onchange="document.getElementById('owl-filter-form').submit();">
-      <option value="">-- All Species --</option>
-      {% for s in species %}
-        <option value="{{ s }}" {% if s == selected_species %}selected{% endif %}>{{ s }}</option>
-      {% endfor %}
-    </select>
-  </label>
-</form>
+			<!-- 🔍 FILTER FORM -->
+			<form method="get" id="owl-filter-form" style="margin-bottom: 2em;">
+				<label for="species">Species:
+					<select name="species" onchange="document.getElementById('owl-filter-form').submit();">
+						<option value="">-- All Species --</option>
+						{% for s in species %}
+							<option value="{{ s }}" {% if s == selected_species %} selected {% endif %}>{{ s }}</option>
+						{% endfor %}
+					</select>
+				</label>
+			</form>
 
 
-    <!-- 🦉 SIGHTINGS -->
-    {% if sightings is defined and sightings %}
-      {% for sighting in sightings %}
-        <div class="owl-card" data-species="{{ sighting.title }}">
-          <h3><a href="{{ sighting.link }}">{{ sighting.title }}</a></h3>
-          <p><strong>Date:</strong> {{ sighting.meta('owl_date_spotted')|default('Unknown date') }}</p>
-          <p><strong>Location:</strong>
-            {% set is_protected = sighting.meta('owl_protected') %}
-            {% if is_protected in ['', '0', false, 0, null] %}
-              {{ sighting.meta('owl_location')|default('Unknown location') }}
-            {% else %}
-              Protected
-            {% endif %}
-          </p>
-          <p><strong>Notes:</strong> {{ sighting.meta('owl_notes')|default('No notes') }}</p>
+			<!-- 🦉 SIGHTINGS -->
+			{% if sightings is defined and sightings %}
+				{% for sighting in sightings %}
+					<div class="owl-card" data-species="{{ sighting.title }}">
+						<h3>
+							<a href="{{ sighting.link }}">{{ sighting.title }}</a>
+						</h3>
+						<p>
+							<strong>Date:</strong>
+							{{ sighting.meta('owl_date_spotted')|default('Unknown date') }}</p>
+						<p>
+							<strong>Location:</strong>
+							{% set is_protected = sighting.meta('owl_protected') %}
+							{% if is_protected in ['', '0', false, 0, null] %}
+								{{ sighting.meta('owl_location')|default('Unknown location') }}
+							{% else %}
+								Protected
+							{% endif %}
+						</p>
+						<p>
+							<strong>Notes:</strong>
+							{{ sighting.meta('owl_notes')|default('No notes') }}</p>
 
-          <select id="owl_species">
-            <option value="{{ sighting.title }}" data-protected="{{ is_protected|default('0') }}">{{ sighting.title }}</option>
-          </select>
-          <input type="hidden" id="protected_species" value="{{ is_protected|default('0') }}">
-          <button id="lookup-owl" class="wiki-button">More Info</button>
-        </div>
-      {% endfor %}
+						<select id="owl_species">
+							<option value="{{ sighting.title }}" data-protected="{{ is_protected|default('0') }}">{{ sighting.title }}</option>
+						</select>
+						<input type="hidden" id="protected_species" value="{{ is_protected|default('0') }}">
+						<button id="lookup-owl" class="wiki-button">More Info</button>
+					</div>
+				{% endfor %}
 
-      <!-- Wikipedia Lookup Panel -->
-      <div id="owl_side_panel" class="wiki-panel">
-        <div id="owl_panel_content" style="display:none;">
-          <img id="owl_panel_img" style="max-width:200px;"><br>
-          <p id="owl_panel_summary"></p>
-          <p><a id="owl_panel_link" href="#" target="_blank" rel="noopener noreferrer">Read more on Wikipedia →</a></p>
-        </div>
-        <div id="owl_panel_spinner" style="display:none;">🔄 Searching Wikipedia...</div>
-        <button id="close_owl_panel">Close</button>
-      </div>
-    {% else %}
-      {{ post_content|raw }}
-    {% endif %}
+				<!-- Wikipedia Lookup Panel -->
+				<div id="owl_side_panel" class="wiki-panel">
+					<div id="owl_panel_content" style="display:none;">
+						<img id="owl_panel_img" style="max-width:200px;"><br>
+						<p id="owl_panel_summary"></p>
+						<p>
+							<a id="owl_panel_link" href="#" target="_blank" rel="noopener noreferrer">Read more on Wikipedia →</a>
+						</p>
+					</div>
+					<div id="owl_panel_spinner" style="display:none;">🔄 Searching Wikipedia...</div>
+					<button id="close_owl_panel">Close</button>
+				</div>
+			{% else %}
+				{{ post_content|raw }}
+			{% endif %}
 
-    <footer>
-      <p>&copy; {{ "now"|date("Y") }} {{ site.name }}</p>
-    </footer>
-  </main>
+			<footer>
+				<p>&copy;
+					{{ "now"|date("Y") }}
+					{{ site.name }}</p>
+			</footer>
+		</main>
 
-  <script>
-    // 🌐 Wikipedia Lookup
-    document.addEventListener('DOMContentLoaded', () => {
-      document.querySelectorAll('.owl-sighting-filters select').forEach(select => {
-        select.addEventListener('change', () => {
-          select.form.submit();
-        });
-      });
+		<script>
+			// 🌐 Wikipedia Lookup
+document.addEventListener('DOMContentLoaded', () => {
+document.querySelectorAll('.owl-sighting-filters select').forEach(select => {
+select.addEventListener('change', () => {
+select.form.submit();
+});
+});
 
-      const owlSelect = document.getElementById('owl_species');
-      const protectedInput = document.getElementById('protected_species');
-      const lookupBtn = document.getElementById('lookup-owl');
-      const sidePanel = document.getElementById('owl_side_panel');
-      const closeBtn = document.getElementById('close_owl_panel');
-      const spinner = document.getElementById('owl_panel_spinner');
-      const contentBox = document.getElementById('owl_panel_content');
-      const img = document.getElementById('owl_panel_img');
-      const summary = document.getElementById('owl_panel_summary');
-      const link = document.getElementById('owl_panel_link');
+const owlSelect = document.getElementById('owl_species');
+const protectedInput = document.getElementById('protected_species');
+const lookupBtn = document.getElementById('lookup-owl');
+const sidePanel = document.getElementById('owl_side_panel');
+const closeBtn = document.getElementById('close_owl_panel');
+const spinner = document.getElementById('owl_panel_spinner');
+const contentBox = document.getElementById('owl_panel_content');
+const img = document.getElementById('owl_panel_img');
+const summary = document.getElementById('owl_panel_summary');
+const link = document.getElementById('owl_panel_link');
 
-      if (!owlSelect || !protectedInput || !lookupBtn) return;
+if (! owlSelect || ! protectedInput || ! lookupBtn) 
+return;
 
-      owlSelect.addEventListener('change', () => {
-        const isProtected = owlSelect.selectedOptions[0]?.dataset.protected === '1';
-        protectedInput.value = isProtected ? '1' : '0';
-      });
 
-      lookupBtn.addEventListener('click', async () => {
-        const species = owlSelect.value;
-        if (!species) return;
 
-        img.src = '';
-        summary.textContent = '';
-        link.href = '#';
-        link.textContent = '';
-        spinner.style.display = 'block';
-        contentBox.style.display = 'none';
-        sidePanel.classList.add('open');
+owlSelect.addEventListener('change', () => {
+const isProtected = owlSelect.selectedOptions[0] ?. dataset.protected === '1';
+protectedInput.value = isProtected ? '1' : '0';
+});
 
-        try {
-          const url = `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(species)}`;
-          const response = await fetch(url);
-          if (!response.ok) throw new Error('Wiki fetch failed');
-          const data = await response.json();
+lookupBtn.addEventListener('click', async () => {
+const species = owlSelect.value;
+if (! species) 
+return;
 
-          if (data.thumbnail?.source) {
-            img.src = data.thumbnail.source;
-            img.alt = species;
-          }
 
-          summary.textContent = data.extract;
-          link.href = data.content_urls.desktop.page;
-          link.textContent = 'Read more on Wikipedia';
-          contentBox.style.display = 'block';
-        } catch (err) {
-          summary.textContent = 'No information found for this owl.';
-          contentBox.style.display = 'block';
-        } finally {
-          spinner.style.display = 'none';
-        }
-      });
 
-      closeBtn.addEventListener('click', () => {
-        sidePanel.classList.remove('open');
-      });
-    });
-  </script>
+img.src = '';
+summary.textContent = '';
+link.href = '#';
+link.textContent = '';
+spinner.style.display = 'block';
+contentBox.style.display = 'none';
+sidePanel.classList.add('open');
 
-  {{ function('wp_footer') }}
-</body>
+try {
+const url = `https://en.wikipedia.org/api/rest_v1/page/summary/${
+encodeURIComponent(species)
+}`;
+const response = await fetch(url);
+if (! response.ok) 
+throw new Error('Wiki fetch failed');
+
+
+const data = await response.json();
+
+if (data.thumbnail ?. source) {
+img.src = data.thumbnail.source;
+img.alt = species;
+}
+
+summary.textContent = data.extract;
+link.href = data.content_urls.desktop.page;
+link.textContent = 'Read more on Wikipedia';
+contentBox.style.display = 'block';
+} catch (err) {
+summary.textContent = 'No information found for this owl.';
+contentBox.style.display = 'block';
+} finally {
+spinner.style.display = 'none';
+}
+});
+
+closeBtn.addEventListener('click', () => {
+sidePanel.classList.remove('open');
+});
+});
+		</script>
+
+		{{ function('wp_footer') }}
+	</body>
 </html>

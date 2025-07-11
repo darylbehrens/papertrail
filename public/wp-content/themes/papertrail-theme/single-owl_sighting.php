@@ -5,7 +5,7 @@ $post = Timber::get_post();
 if ($post->thumbnail) {
     $post->thumbnail = Timber::get_image($post->thumbnail->ID);
 } else {
-   $post->thumbnail = Timber::get_image('2025\07\Owl-Dead-on-SharpenAI-Focus-150x150.jpg');
+    $post->thumbnail = Timber::get_image('2025\07\Owl-Dead-on-SharpenAI-Focus-150x150.jpg');
 }
 
 

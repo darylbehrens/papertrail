@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Plugin Name: Papertrail Author Stats
  * Plugin URI: https://github.com/darylbehrens/papertrail/tree/main/public/wp/wp-content/plugins/papertrail-author-stats

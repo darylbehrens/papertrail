@@ -1,36 +1,43 @@
 {% extends "base.twig" %}
 
 {% block content %}
-  <h1>Owl Sightings</h1>
+	<h1>Owl Sightings</h1>
 
- <form method="get" id="owl-filter-form" style="margin-bottom: 2em;">
-  <label for="species">Species:
-    <select name="species" onchange="document.getElementById('owl-filter-form').submit();">
-      <option value="">-- All Species --</option>
-      {% for s in species %}
-        <option value="{{ s }}" {% if s == selected_species %}selected{% endif %}>{{ s }}</option>
-      {% endfor %}
-    </select>
-  </label>
-</form>
+	<form method="get" id="owl-filter-form" style="margin-bottom: 2em;">
+		<label for="species">Species:
+			<select name="species" onchange="document.getElementById('owl-filter-form').submit();">
+				<option value="">-- All Species --</option>
+				{% for s in species %}
+					<option value="{{ s }}" {% if s == selected_species %} selected {% endif %}>{{ s }}</option>
+				{% endfor %}
+			</select>
+		</label>
+	</form>
 
-  {% if sightings is not empty %}
-    {% for sighting in sightings %}
-      <div class="owl-card">
-        <h3><a href="{{ sighting.link }}">{{ sighting.title }}</a></h3>
-        <p><strong>Date:</strong> {{ sighting.meta('owl_date_spotted')|default('Unknown') }}</p>
-        <p><strong>Location:</strong>
-          {% set is_protected = sighting.meta('owl_protected') %}
-          {% if is_protected in ['', '0', false, 0, null] %}
-            {{ sighting.meta('owl_location')|default('Unknown') }}
-          {% else %}
-            Protected
-          {% endif %}
-        </p>
-        <p><strong>Notes:</strong> {{ sighting.meta('owl_notes')|default('') }}</p>
-      </div>
-    {% endfor %}
-  {% else %}
-    <p>No sightings found with current filters.</p>
-  {% endif %}
+	{% if sightings is not empty %}
+		{% for sighting in sightings %}
+			<div class="owl-card">
+				<h3>
+					<a href="{{ sighting.link }}">{{ sighting.title }}</a>
+				</h3>
+				<p>
+					<strong>Date:</strong>
+					{{ sighting.meta('owl_date_spotted')|default('Unknown') }}</p>
+				<p>
+					<strong>Location:</strong>
+					{% set is_protected = sighting.meta('owl_protected') %}
+					{% if is_protected in ['', '0', false, 0, null] %}
+						{{ sighting.meta('owl_location')|default('Unknown') }}
+					{% else %}
+						Protected
+					{% endif %}
+				</p>
+				<p>
+					<strong>Notes:</strong>
+					{{ sighting.meta('owl_notes')|default('') }}</p>
+			</div>
+		{% endfor %}
+	{% else %}
+		<p>No sightings found with current filters.</p>
+	{% endif %}
 {% endblock %}

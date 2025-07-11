@@ -44,7 +44,7 @@ add_filter('nav_menu_item_args', function ($args) {
 });
 add_action('init', function () {
 
-        $file = get_attached_file(85); // Replace 999 with a real attachment ID
+    $file = get_attached_file(85); // Replace 999 with a real attachment ID
     $size = getimagesize($file);
     error_log('🧪 Image size test: ' . print_r($size, true));
     if (!get_option('demo_owl_sightings_created')) {
@@ -80,4 +80,3 @@ error_log('🦉 functions.php is loading');
 add_action('wp_enqueue_scripts', function () {
     wp_enqueue_style('papertrail-style', get_template_directory_uri() . '/style.css');
 });
-
