@@ -123,7 +123,8 @@ add_shortcode('owl_sightings', function () {
             $species = get_post_meta($id, 'owl_species', true);
             $date = get_post_meta($id, 'owl_date_spotted', true);
             $notes = get_post_meta($id, 'owl_notes', true);
-            $image_url = get_the_post_thumbnail_url($id, 'medium');
+            $image_url = get_the_post_thumbnail_url($id, 'owl-thumb'); // or 'medium' if you prefer
+
 
             echo '<div class="owl-sighting">';
             echo '<h3>' . esc_html($species) . '</h3>';
@@ -544,17 +545,26 @@ error_log('🔍 Form POST: ' . print_r($_POST, true));
             update_post_meta($post_id, 'owl_notes', $notes);
             update_post_meta($post_id, 'owl_protected', $protected);
             update_post_meta($post_id, 'owl_location', $location);
-            if (!empty($_FILES['owl_photo']['name'])) {
-                require_once(ABSPATH . 'wp-admin/includes/file.php');
-                require_once(ABSPATH . 'wp-admin/includes/image.php');
-                $attachment_id = media_handle_upload('owl_photo', $post_id);
-                if (!is_wp_error($attachment_id)) {
-                    set_post_thumbnail($post_id, $attachment_id);
-                }
-            }
+if (!empty($_FILES['owl_photo']) && !empty($_FILES['owl_photo']['name'])) {
+    require_once ABSPATH . 'wp-admin/includes/image.php';
+    require_once ABSPATH . 'wp-admin/includes/file.php';
+    require_once ABSPATH . 'wp-admin/includes/media.php';
 
-           wp_redirect(site_url('/sightings'));
+    $attachment_id = media_handle_upload('owl_photo', $post_id);
+
+if (!is_wp_error($attachment_id)) {
+    set_post_thumbnail($post_id, $attachment_id);
+
+    // ✅ Force metadata generation
+    require_once ABSPATH . 'wp-admin/includes/image.php';
+    $attachment_data = wp_generate_attachment_metadata($attachment_id, get_attached_file($attachment_id));
+    wp_update_attachment_metadata($attachment_id, $attachment_data);
+}
+}
+
+wp_redirect(site_url('/sightings'));
 exit;
+
         }
     }
 

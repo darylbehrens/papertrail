@@ -87,6 +87,9 @@ vagrant.log
 /public/*
 !/public/wp-content/
 
+# do not send images
+/public/wp-content/uploads/**
+
 # Ignore default plugins, but allow custom ones
 /public/wp-content/plugins/akismet/
 /public/wp-content/plugins/hello.php

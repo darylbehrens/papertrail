@@ -1,4 +1,6 @@
 <?php
+
+add_theme_support('post-thumbnails'); // ✅ ADDED
 // Load Composer's autoloader and Timber
 require_once __DIR__ . '/vendor/autoload.php';
 
@@ -6,6 +8,17 @@ use Timber\Timber;
 
 // Initialize Timber
 Timber::init();
+
+add_theme_support('post-thumbnails'); // ✅ ADDED
+add_image_size('owl-thumb', 300, 300, true); // ✅ Optional custom size
+add_filter('image_size_names_choose', function ($sizes) {
+    return array_merge($sizes, ['owl-thumb' => 'Owl Thumbnail']);
+}); // ✅ Optional display in WP Media dropdown
+
+add_filter('timber/loader/paths', function ($paths) {
+    $paths[0][] = __DIR__ . '/templates';
+    return $paths;
+});
 add_filter('timber/loader/paths', function ($paths) {
     $paths[0][] = __DIR__ . '/templates';
     return $paths;
@@ -30,6 +43,10 @@ add_filter('nav_menu_item_args', function ($args) {
     return $args;
 });
 add_action('init', function () {
+
+        $file = get_attached_file(85); // Replace 999 with a real attachment ID
+    $size = getimagesize($file);
+    error_log('🧪 Image size test: ' . print_r($size, true));
     if (!get_option('demo_owl_sightings_created')) {
         $species = ['Great Horned Owl', 'Barn Owl', 'Northern Saw-whet Owl', 'Spotted Owl'];
         $locations = ['Forest Park, OR', 'Ridgefield NWR', 'Mount Tabor', 'Sauvie Island'];
