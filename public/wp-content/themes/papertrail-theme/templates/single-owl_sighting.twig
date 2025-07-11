@@ -4,6 +4,18 @@
 	<article class="owl-single">
 
 		<h1>{{ post.title ?: 'Unknown Species' }}</h1>
+
+		{# 🖼️ Show image if one exists #}
+		{% if post.thumbnail %}
+			<a href="{{ post.thumbnail.src('full') }}" target="_blank">
+				<img src="{{ post.thumbnail.src('large') }}" alt="Owl photo" class="owl-image"/>
+			</a>
+			<p>
+				<a href="{{ post.thumbnail.src('full') }}" download class="download-btn">📥 Download full-size image</a>
+			</p>
+		{% endif %}
+
+
 		<p>
 			<strong>Date Spotted:</strong>
 			{{ post.meta('owl_date_spotted') ?: 'Unknown date' }}</p>

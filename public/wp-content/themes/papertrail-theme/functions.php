@@ -80,3 +80,11 @@ error_log('🦉 functions.php is loading');
 add_action('wp_enqueue_scripts', function () {
     wp_enqueue_style('papertrail-style', get_template_directory_uri() . '/style.css');
 });
+
+add_action('template_redirect', function () {
+    if (is_front_page() && !is_admin()) {
+        wp_redirect(home_url('/sightings'));
+        exit;
+    }
+});
+
