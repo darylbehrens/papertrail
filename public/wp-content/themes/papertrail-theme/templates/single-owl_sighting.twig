@@ -4,17 +4,8 @@
   <article class="owl-single">
 
     <h1>{{ post.title ?: 'Unknown Species' }}</h1>
-{{ dump(post.thumbnail) }}
-    {% if post.thumbnail %}
-<img src="{{ post.thumbnail.guid }}" alt="{{ post.title }}">
-
-
-
-{% else %}
-  <p>No image available</p>
-{% endif %}
-
-    
+<h2>✅ Root-level hardcoded image:</h2>
+<img src="/owl.jpg" alt="Owl test root" style="max-width:300px;">
 
     <p><strong>Date Spotted:</strong> {{ post.meta('owl_date_spotted') ?: 'Unknown date' }}</p>
     <p><strong>Species:</strong> {{ post.meta('owl_species') ?: 'Unknown species' }}</p>
