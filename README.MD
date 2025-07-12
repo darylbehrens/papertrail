@@ -9,7 +9,7 @@ Owls, especially protected species like the Northern Spotted Owl or Great Gray O
 - Record sightings with **generalized location data** (e.g., county)
 - Automatically **hide the location field** from the public when a sighting involves a protected species
 - Submit details like date, species, notes, and a photo of the bird
-- View an archive of all submitted sightings with filters by species or date range
+- View an archive of all submitted sightings with filters by species
 
 This ensures valuable data can still be gathered without compromising the safety of the birds.
 
@@ -29,17 +29,6 @@ This app was built in direct response to a PHP-heavy job stack, with hands-on wo
 - **REST API (planned)** – Placeholder for future integration with external tools
 - **Frontend styling** – Pure CSS with mobile-first responsiveness
 - **Wikipedia API** – Real-time species information during sighting submission
-
-Optional integrations and experience explored:
-- **Cloudflare** (for future WAF or DNS use)
-- **Bitbucket Pipelines** (researched for CI/CD)
-- **SSH + Ubuntu terminal usage**
-- **LinkedIn Learning Courses**:
-  - PHP Essential Training
-  - PHP OOP
-  - WordPress Plugin and CPT development
-  - PHP for WordPress
-
 ---
 
 ## ✨ Wikipedia API Integration
@@ -68,7 +57,7 @@ This demonstrates:
 | 🦉 Owl Submission Form           | Users can submit sightings with species, photo, notes, and date            |
 | 🔍 Wikipedia Lookup              | Fetches real-time owl summaries and images                                 |
 | 🔒 Protected Species Handling     | Automatically hides the location of protected species in public listings   |
-| 🔍 Species/Date Filtering        | Visitors can filter sightings by species or time range                     |
+| 🔍 Species. Filtering.            |Visitors can filter sightings by species                    |
 | 🖼️ Image Upload + Display         | Users can include and download owl images                                  |
 | 📚 Twig Templates via Timber     | Cleanly separated layout and logic layers for maintainability              |
 | 🧠 Smart Data Display            | Human-readable defaults, data sanitization, and safe fallbacks             |
