@@ -127,7 +127,8 @@ add_shortcode('owl_sightings', function () {
             $query->the_post();
             $id = get_the_ID();
             $species = get_post_meta($id, 'owl_species', true);
-            $date = get_post_meta($id, 'owl_date_spotted', true);
+            $date_raw = get_post_meta($id, 'owl_date_spotted', true);
+$date = date('m-d-Y', strtotime($date_raw));
             $notes = get_post_meta($id, 'owl_notes', true);
             $image_url = get_the_post_thumbnail_url($id, 'owl-thumb'); // or 'medium' if you prefer
 

@@ -18,7 +18,7 @@
 
 		<p>
 			<strong>Date Spotted:</strong>
-			{{ post.meta('owl_date_spotted') ?: 'Unknown date' }}</p>
+			{{ post.meta('owl_date_spotted')|date('m-d-Y') ?: 'Unknown date' }}
 		<p>
 			<strong>Species:</strong>
 			{{ post.meta('owl_species') ?: 'Unknown species' }}</p>

@@ -22,7 +22,8 @@
 				</h3>
 				<p>
 					<strong>Date:</strong>
-					{{ sighting.meta('owl_date_spotted')|default('Unknown') }}</p>
+					{{ sighting.meta('owl_date_spotted')|date('m-d-Y')|default('Unknown') }}</p>
+
 				<p>
 					<strong>WA County:</strong>
 					{% set is_protected = sighting.meta('owl_protected') %}
