@@ -1,14 +1,16 @@
 <?php
-
 /**
- * Plugin Name: Papertrail Author Stats
- * Plugin URI: https://github.com/darylbehrens/papertrail/tree/main/public/wp/wp-content/plugins/papertrail-author-stats
- * Description: Adds feature to show post counts per author.
+ * Plugin Name: Papertrail Author Stats (Dev Demo)
+ * Plugin URI: https://github.com/darylbehrens/papertrail/tree/main/public/wp/wp-content/plugins/dev-demos
+ * Description: Developer demo plugin showcasing WordPress dashboard widgets, shortcodes, and custom widgets.
  * Version: 1.0
  * Author: Daryl Behrens
  * License: GPL2
+ * 
+ * 🚧 This plugin is for demonstration purposes only. Not part of the Owl Sightings production code.
  */
 
+// 🧩 Adds a dashboard widget showing post counts per author
 add_action('wp_dashboard_setup', function () {
     wp_add_dashboard_widget('author_stats_widget', 'Author Stats', function () {
         $authors = get_users(['who' => 'authors']);
@@ -21,9 +23,7 @@ add_action('wp_dashboard_setup', function () {
     });
 });
 
-/**
- * Adds [author_stats] shortcode to display a list of authors and their post counts.
- */
+// 🔢 Adds [author_stats] shortcode to show author stats on the front end
 add_shortcode('author_stats', function () {
     $authors = get_users(['who' => 'authors']);
 
@@ -38,9 +38,10 @@ add_shortcode('author_stats', function () {
         echo "<li><strong>{$author->display_name}</strong>: {$count} posts</li>";
     }
     echo '</ul>';
-    return ob_get_clean();
+    return ob_get_clean(); // 🔁 Return output buffer
 });
 
+// 🧱 Adds a sidebar widget version of the same author stats
 class Author_Stats_Widget extends WP_Widget
 {
     public function __construct()
@@ -70,12 +71,14 @@ class Author_Stats_Widget extends WP_Widget
     }
 }
 
+// 🧷 Registers the custom widget
 function register_author_stats_widget()
 {
     register_widget('Author_Stats_Widget');
 }
 add_action('widgets_init', 'register_author_stats_widget');
 
+// 💄 Injects some basic widget styling into the site <head>
 function papertrail_widget_styles()
 {
     echo '<style>
