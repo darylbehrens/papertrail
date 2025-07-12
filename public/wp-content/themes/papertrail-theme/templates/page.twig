@@ -110,7 +110,7 @@
 							<strong>Date:</strong>
 							{{ sighting.meta('owl_date_spotted')|default('Unknown date') }}</p>
 						<p>
-							<strong>Location:</strong>
+							<strong>WA County:</strong>
 							{% set is_protected = sighting.meta('owl_protected') %}
 							{% if is_protected in ['', '0', false, 0, null] %}
 								{{ sighting.meta('owl_location')|default('Unknown location') }}

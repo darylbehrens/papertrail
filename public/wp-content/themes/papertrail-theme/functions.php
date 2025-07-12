@@ -26,7 +26,7 @@ add_filter('timber/loader/paths', function ($paths) {
 
 add_filter('login_redirect', function ($redirect_to, $request, $user) {
     if (is_a($user, 'WP_User') && $user->has_cap('read')) {
-        return home_url('/owl-sightings'); // Adjust if your slug is different
+        return home_url('/sightings'); // Adjust if your slug is different
     }
     return $redirect_to;
 }, 10, 3);
@@ -81,10 +81,58 @@ add_action('wp_enqueue_scripts', function () {
     wp_enqueue_style('papertrail-style', get_template_directory_uri() . '/style.css');
 });
 
+// Redirect homepage to /sightings
 add_action('template_redirect', function () {
     if (is_front_page() && !is_admin()) {
-        wp_redirect(home_url('/sightings'));
+        $scheme = is_ssl() ? 'https' : 'http';
+        $host   = $_SERVER['HTTP_HOST'];
+        $url    = "{$scheme}://{$host}/sightings";
+
+        wp_redirect($url, 302);
         exit;
     }
 });
 
+// Require login for sightings and submit page
+add_action('template_redirect', function () {
+    if (!is_user_logged_in()) {
+        if (is_post_type_archive('owl_sighting') || is_singular('owl_sighting')) {
+            wp_redirect(wp_login_url(get_permalink()));
+            exit;
+        }
+
+        if (is_page('submit-sighting')) {
+            wp_redirect(wp_login_url(get_permalink()));
+            exit;
+        }
+    }
+});
+add_action('template_redirect', function () {
+    if (isset($_SERVER['REQUEST_URI']) && strpos($_SERVER['REQUEST_URI'], '/owl-sightings') !== false) {
+        error_log("🦉 Hit owl-sightings URL");
+
+        if (is_page()) {
+            error_log("📄 WordPress thinks this is a PAGE: " . get_the_title());
+        }
+
+        if (is_post_type_archive('owl_sighting')) {
+            error_log("📦 WordPress thinks this is the archive for owl_sighting");
+        }
+
+        if (is_singular('owl_sighting')) {
+            error_log("📌 WordPress thinks this is a single owl_sighting");
+        }
+
+        if (is_404()) {
+            error_log("❌ This is a 404 page");
+        }
+    }
+});
+
+add_action('template_redirect', function () {
+    // Check if the current path is exactly "owl-sightings"
+    if (trim($_SERVER['REQUEST_URI'], '/') === 'owl-sightings') {
+        wp_redirect(home_url('/sightings'), 301); // permanent redirect
+        exit;
+    }
+});

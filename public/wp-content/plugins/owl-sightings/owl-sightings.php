@@ -11,47 +11,51 @@
 
 defined('ABSPATH') or die('No script kiddies please!');
 
-function get_oregon_counties()
+function get_washington_counties()
 {
     return [
-        'Baker',
+        'Adams',
+        'Asotin',
         'Benton',
-        'Clackamas',
-        'Clatsop',
+        'Chelan',
+        'Clallam',
+        'Clark',
         'Columbia',
-        'Coos',
-        'Crook',
-        'Curry',
-        'Deschutes',
+        'Cowlitz',
         'Douglas',
-        'Gilliam',
+        'Ferry',
+        'Franklin',
+        'Garfield',
         'Grant',
-        'Harney',
-        'Hood River',
-        'Jackson',
+        'Grays Harbor',
+        'Island',
         'Jefferson',
-        'Josephine',
-        'Klamath',
-        'Lake',
-        'Lane',
+        'King',
+        'Kitsap',
+        'Kittitas',
+        'Klickitat',
+        'Lewis',
         'Lincoln',
-        'Linn',
-        'Malheur',
-        'Marion',
-        'Morrow',
-        'Multnomah',
-        'Polk',
-        'Sherman',
-        'Tillamook',
-        'Umatilla',
-        'Union',
-        'Wallowa',
-        'Wasco',
-        'Washington',
-        'Wheeler',
-        'Yamhill'
+        'Mason',
+        'Okanogan',
+        'Pacific',
+        'Pend Oreille',
+        'Pierce',
+        'San Juan',
+        'Skagit',
+        'Skamania',
+        'Snohomish',
+        'Spokane',
+        'Stevens',
+        'Thurston',
+        'Wahkiakum',
+        'Walla Walla',
+        'Whatcom',
+        'Whitman',
+        'Yakima',
     ];
 }
+
 
 
 add_filter('use_curl_transport', '__return_true');
@@ -165,7 +169,7 @@ function owl_sightings_register_post_type()
     $args = [
         'labels' => $labels,
         'public' => true,
-        'has_archive' => true,
+        'has_archive' => 'sightings',
         'rewrite' => ['slug' => 'sightings'],
         'supports' => ['title', 'editor', 'custom-fields'],
         'show_in_rest' => true,
@@ -498,7 +502,8 @@ function flush_owl_rewrites()
 
 add_shortcode('owl_sighting_form', function () {
     if (!is_user_logged_in()) {
-        return '<p>You must be <a href="' . wp_login_url() . '">logged in</a> to submit an owl sighting.</p>';
+        wp_redirect(wp_login_url(get_permalink()));
+        exit;
     }
 
     // List of PNW Owls and their protection status
@@ -530,7 +535,14 @@ add_shortcode('owl_sighting_form', function () {
 
         $title = sanitize_text_field($_POST['owl_species']);
         $location = sanitize_text_field($_POST['owl_location']);
-        $date_spotted = sanitize_text_field($_POST['owl_date_spotted']);
+        $raw_date = sanitize_text_field($_POST['owl_date_spotted']);
+        $date_only = substr($raw_date, 0, 10); // Trims time from datetime-local input
+
+        if (strtotime($date_only) > strtotime(date('Y-m-d'))) {
+            wp_die('❌ The date cannot be in the future.');
+        }
+
+        $date_spotted = $date_only;
         $notes = sanitize_textarea_field($_POST['owl_notes']);
         $protected = isset($_POST['owl_protected']) ? sanitize_text_field($_POST['owl_protected']) : '0';
         error_log('🔍 Form POST: ' . print_r($_POST, true));
@@ -634,12 +646,12 @@ add_shortcode('owl_sighting_form', function () {
 
 
         <div class="form-group">
-            <label for="owl_location">County (Oregon only)</label>
+            <label for="owl_location">County (Washington only)</label>
             <select name="owl_location" id="owl_location" class="form-control" required>
                 <option value="">-- Select a County --</option>
                 <?php
-                $oregon_counties = get_oregon_counties();
-                foreach ($oregon_counties as $county) {
+                $washington_counties = get_washington_counties();
+                foreach ($washington_counties as $county) {
                     echo '<option value="' . esc_attr($county) . '">' . esc_html($county) . ' County</option>';
                 }
                 ?>
@@ -650,7 +662,8 @@ add_shortcode('owl_sighting_form', function () {
 
         <div class="form-group">
             <label for="owl_date_spotted">Date/Time Spotted</label>
-            <input type="datetime-local" name="owl_date_spotted" id="owl_date_spotted" class="form-control" required>
+            <input type="date" name="owl_date_spotted" id="owl_date_spotted" class="form-control" required max="<?php echo date('Y-m-d'); ?>">
+
         </div>
 
         <div class="form-group">
