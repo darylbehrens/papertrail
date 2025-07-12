@@ -29,17 +29,6 @@ This app was built in direct response to a PHP-heavy job stack, with hands-on wo
 - **REST API (planned)** – Placeholder for future integration with external tools
 - **Frontend styling** – Pure CSS with mobile-first responsiveness
 - **Wikipedia API** – Real-time species information during sighting submission
-
-Optional integrations and experience explored:
-- **Cloudflare** (for future WAF or DNS use)
-- **Bitbucket Pipelines** (researched for CI/CD)
-- **SSH + Ubuntu terminal usage**
-- **LinkedIn Learning Courses**:
-  - PHP Essential Training
-  - PHP OOP
-  - WordPress Plugin and CPT development
-  - PHP for WordPress
-
 ---
 
 ## ✨ Wikipedia API Integration
