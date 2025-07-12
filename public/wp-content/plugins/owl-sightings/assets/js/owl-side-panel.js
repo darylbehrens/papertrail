@@ -47,7 +47,21 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  closeBtn.addEventListener('click', () => {
-    sidePanel.classList.remove('open');
-  });
+  const pageWrapper = document.getElementById('page_wrapper');
+
+  if (pageWrapper) {
+    lookupBtn.addEventListener('click', () => {
+      pageWrapper.classList.add('panel-open');
+    });
+
+    closeBtn.addEventListener('click', () => {
+      sidePanel.classList.remove('open');
+      pageWrapper.classList.remove('panel-open');
+    });
+  } else {
+    // fallback: still close the panel if wrapper is missing
+    closeBtn.addEventListener('click', () => {
+      sidePanel.classList.remove('open');
+    });
+  }
 });

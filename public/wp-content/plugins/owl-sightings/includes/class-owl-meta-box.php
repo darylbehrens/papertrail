@@ -15,8 +15,8 @@ class OwlSightingMetaBox
             'Owl Sighting Details',
             [$this, 'render_meta_box'],
             'owl_sighting',
-            'normal',
-            'high'
+            'advanced',
+            'default'
         );
     }
 
@@ -34,7 +34,7 @@ class OwlSightingMetaBox
 
         // Render
         wp_nonce_field('owl_sighting_nonce_action', 'owl_sighting_nonce');
-        include plugin_dir_path(__FILE__) . '/../partials/meta-box-fields.php';
+        include plugin_dir_path(__FILE__) . '/partials/meta-box-fields.php';
     }
 
     public function save_meta_box($post_id)

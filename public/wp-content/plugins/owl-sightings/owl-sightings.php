@@ -9,7 +9,7 @@
  * License: GPL2
  */
 
- // Grab hardcoded data for select boxes. In future would be in a DB or grabbed from an API
+// Grab hardcoded data for select boxes. In future would be in a DB or grabbed from an API
 require_once plugin_dir_path(__FILE__) . 'includes/owl-data.php';
 require_once plugin_dir_path(__FILE__) . 'includes/county-utils.php';
 require_once plugin_dir_path(__FILE__) . 'includes/class-owl-meta-box.php';
@@ -154,18 +154,17 @@ function owl_sighting_meta_box_html($post)
 
     <!-- More Info button to open side panel with Wikipedia info -->
     <p>
-        <button type="button" id="more_owl_info" class="button">More Info</button>
+        <button type="button" id="lookup-owl" class="button">More Info</button>
     </p>
 
     <!-- Side panel for Wikipedia owl info -->
-    <div id="owl_side_panel" aria-hidden="true">
-        <div id="owl_side_panel_inner">
-            <button id="close_owl_panel" aria-label="Close panel">&times;</button>
-            <div id="owl_panel_spinner">🌀 Loading owl facts...</div>
-            <h2 id="owl_panel_title"></h2>
-            <img id="owl_panel_img" src="" alt="Owl photo" />
+    <div id="owl_side_panel">
+        <button id="close_owl_panel" aria-label="Close">✕</button>
+        <div id="owl_panel_spinner">Loading...</div>
+        <div id="owl_panel_content" style="display:none;">
+            <img id="owl_panel_img" style="max-width:100%;" />
             <p id="owl_panel_summary"></p>
-            <p><a id="owl_panel_link" href="#" target="_blank" rel="noopener noreferrer">Read more on Wikipedia →</a></p>
+            <a id="owl_panel_link" target="_blank" rel="noopener noreferrer"></a>
         </div>
     </div>
 
