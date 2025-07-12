@@ -434,8 +434,32 @@ add_action('rest_api_init', function () {
 
 function get_fake_owl_species()
 {
-    return ['Great Horned Owl', 'Northern Saw-whet Owl', 'Barn Owl', 'Barred Owl', 'Snowy Owl', 'Great Gray Owl', 'Spotted Owl', 'Western Screech Owl'];
+    $pnw_owls = [
+    ['name' => 'Barn Owl', 'protected' => false],
+    ['name' => 'Barred Owl', 'protected' => false],
+    ['name' => 'Burrowing Owl', 'protected' => true],
+    ['name' => 'Flammulated Owl', 'protected' => true],
+    ['name' => 'Great Gray Owl', 'protected' => true],
+    ['name' => 'Great Horned Owl', 'protected' => false],
+    ['name' => 'Long-eared Owl', 'protected' => true],
+    ['name' => 'Northern Pygmy-Owl', 'protected' => false],
+    ['name' => 'Northern Saw-whet Owl', 'protected' => false],
+    ['name' => 'Northern Spotted Owl', 'protected' => true],
+    ['name' => 'Short-eared Owl', 'protected' => true],
+    ['name' => 'Snowy Owl', 'protected' => false],
+    ['name' => 'Western Screech-Owl', 'protected' => false],
+];
+
+    // Sort by name
+    usort($pnw_owls, fn($a, $b) => strcmp($a['name'], $b['name']));
+
+    // Format with (Protected) if needed
+    return array_map(function ($owl) {
+        return $owl['name'] . ($owl['protected'] ? ' (Protected)' : '');
+    }, $pnw_owls);
 }
+
+
 
 function get_fake_owl_info($request)
 {
@@ -509,20 +533,20 @@ add_shortcode('owl_sighting_form', function () {
 
     // List of PNW Owls and their protection status
     $pnw_owls = [
-        ['name' => 'Northern Spotted Owl', 'protected' => true],
-        ['name' => 'Great Horned Owl', 'protected' => false],
-        ['name' => 'Barred Owl', 'protected' => false],
-        ['name' => 'Barn Owl', 'protected' => false],
-        ['name' => 'Western Screech-Owl', 'protected' => false],
-        ['name' => 'Northern Saw-whet Owl', 'protected' => false],
-        ['name' => 'Northern Pygmy-Owl', 'protected' => false],
-        ['name' => 'Long-eared Owl', 'protected' => true],
-        ['name' => 'Short-eared Owl', 'protected' => true],
-        ['name' => 'Burrowing Owl', 'protected' => true],
-        ['name' => 'Snowy Owl', 'protected' => false],
-        ['name' => 'Great Gray Owl', 'protected' => true],
-        ['name' => 'Flammulated Owl', 'protected' => true],
-    ];
+    ['name' => 'Barn Owl', 'protected' => false],
+    ['name' => 'Barred Owl', 'protected' => false],
+    ['name' => 'Burrowing Owl', 'protected' => true],
+    ['name' => 'Flammulated Owl', 'protected' => true],
+    ['name' => 'Great Gray Owl', 'protected' => true],
+    ['name' => 'Great Horned Owl', 'protected' => false],
+    ['name' => 'Long-eared Owl', 'protected' => true],
+    ['name' => 'Northern Pygmy-Owl', 'protected' => false],
+    ['name' => 'Northern Saw-whet Owl', 'protected' => false],
+    ['name' => 'Northern Spotted Owl', 'protected' => true],
+    ['name' => 'Short-eared Owl', 'protected' => true],
+    ['name' => 'Snowy Owl', 'protected' => false],
+    ['name' => 'Western Screech-Owl', 'protected' => false],
+];
 
     // 🔥 Form submission handler
     if (
@@ -662,7 +686,7 @@ add_shortcode('owl_sighting_form', function () {
 
 
         <div class="form-group">
-            <label for="owl_date_spotted">Date/Time Spotted</label>
+            <label for="owl_date_spotted">Date Spotted</label>
             <input type="date" name="owl_date_spotted" id="owl_date_spotted" class="form-control" required max="<?php echo date('Y-m-d'); ?>">
 
         </div>

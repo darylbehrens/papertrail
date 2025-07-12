@@ -6,6 +6,7 @@ $filters = [];
 $meta_query = [];
 
 error_log('🧪 GET params: ' . print_r($_GET, true));
+
 // 🦉 Filter by species
 if (!empty($_GET['species'])) {
     $meta_query[] = [
@@ -15,7 +16,6 @@ if (!empty($_GET['species'])) {
     ];
 }
 $context['selected_species'] = isset($_GET['species']) ? sanitize_text_field($_GET['species']) : '';
-
 
 // 🏞️ Filter by location
 if (!empty($_GET['location'])) {
@@ -59,14 +59,35 @@ if (!empty($meta_query)) {
 
 $context['sightings'] = Timber::get_posts($filters);
 
-// For filter dropdowns
-$context['all_species'] = array_unique(array_filter(array_map(function ($p) {
+// 🛡️ List of protected owl species
+$protected_species = [
+    'Northern Spotted Owl',
+    'Long-eared Owl',
+    'Short-eared Owl',
+    'Burrowing Owl',
+    'Great Gray Owl',
+    'Flammulated Owl'
+];
+
+// 🔍 Build all_species list
+$raw_species = array_unique(array_filter(array_map(function ($p) {
     return get_post_meta($p->ID, 'owl_species', true);
 }, get_posts(['post_type' => 'owl_sighting', 'numberposts' => -1]))));
+
+// 🔤 Sort alphabetically
+sort($raw_species);
+
+// 🛡️ Add (Protected) to display name
+$context['all_species'] = array_map(function ($species) use ($protected_species) {
+    return in_array($species, $protected_species)
+        ? $species . ' (Protected)'
+        : $species;
+}, $raw_species);
 
 $context['all_locations'] = array_unique(array_filter(array_map(function ($p) {
     return get_post_meta($p->ID, 'owl_location', true);
 }, get_posts(['post_type' => 'owl_sighting', 'numberposts' => -1]))));
 
 $context['species'] = $context['all_species'];
+
 Timber::render('archive-owl_sighting.twig', $context);

@@ -61,10 +61,17 @@ body {
   font-family: system-ui, sans-serif;
   background: #fdfdfc;
   color: #222;
-  padding: 2rem;
-  max-width: 40rem;
-  margin: auto;
+  margin: 0;
+  padding: 0;
 }
+
+/* Optional wrapper to center main content if you like */
+.main-wrapper {
+  max-width: 40rem;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
 
 header h1 {
   font-size: 2rem;
@@ -333,4 +340,32 @@ li {
 
 .download-btn:hover {
   background: #3e1d0f;
+}
+@media (max-width: 600px) {
+  .owl-list article {
+    padding: 1rem;
+    font-size: 0.95rem;
+  }
+
+  .owl-list .card {
+    margin: 0.5rem 0;
+    padding: 1rem;
+  }
+
+  .owl-image {
+    max-width: 100%;
+    height: auto;
+  }
+
+  .download-btn {
+    display: block;
+    margin-top: 0.5rem;
+    font-size: 0.9rem;
+  }
+}
+
+.main-wrapper {
+  max-width: 40rem;
+  margin: 0 auto;
+  padding: 0 1rem;
 }

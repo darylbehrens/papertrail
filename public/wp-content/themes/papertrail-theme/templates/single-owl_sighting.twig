@@ -5,7 +5,6 @@
 
 		<h1>{{ post.title ?: 'Unknown Species' }}</h1>
 
-		{# 🖼️ Show image if one exists #}
 		{% if post.thumbnail %}
 			<a href="{{ post.thumbnail.src('full') }}" target="_blank">
 				<img src="{{ post.thumbnail.src('large') }}" alt="Owl photo" class="owl-image"/>
@@ -15,18 +14,39 @@
 			</p>
 		{% endif %}
 
-
 		<p>
 			<strong>Date Spotted:</strong>
 			{{ post.meta('owl_date_spotted')|date('m-d-Y') ?: 'Unknown date' }}
+		</p>
+
 		<p>
 			<strong>Species:</strong>
-			{{ post.meta('owl_species') ?: 'Unknown species' }}</p>
+			{% set species = post.meta('owl_species') %}
+			{{ species ?: 'Unknown species' }}
+		</p>
+
+		{% set protected_species = [
+			'Northern Spotted Owl',
+			'Long-eared Owl',
+			'Short-eared Owl',
+			'Burrowing Owl',
+			'Great Gray Owl',
+			'Flammulated Owl'
+		] %}
+		{% set is_protected = species in protected_species %}
+
 		<p>
 			<strong>WA County:</strong>
-			{{ post.meta('owl_location') ?: 'Unknown location' }}</p>
+			{% if is_protected %}
+				Protected
+			{% else %}
+				{{ post.meta('owl_location') ?: 'Unknown location' }}
+			{% endif %}
+		</p>
+
 		<p>
 			<strong>Notes:</strong>
-			{{ post.meta('owl_notes') ?: 'No notes provided' }}</p>
+			{{ post.meta('owl_notes') ?: 'No notes provided' }}
+		</p>
 	</article>
 {% endblock %}

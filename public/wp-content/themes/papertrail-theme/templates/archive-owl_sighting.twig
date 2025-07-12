@@ -8,7 +8,10 @@
 			<select name="species" onchange="document.getElementById('owl-filter-form').submit();">
 				<option value="">-- All Species --</option>
 				{% for s in species %}
-					<option value="{{ s }}" {% if s == selected_species %} selected {% endif %}>{{ s }}</option>
+					{% set base_species = s|replace({' (Protected)': ''}) %}
+					<option value="{{ base_species }}" {% if base_species == selected_species %} selected {% endif %}>
+						{{ s }}
+					</option>
 				{% endfor %}
 			</select>
 		</label>
@@ -20,22 +23,35 @@
 				<h3>
 					<a href="{{ sighting.link }}">{{ sighting.title }}</a>
 				</h3>
-				<p>
-					<strong>Date:</strong>
-					{{ sighting.meta('owl_date_spotted')|date('m-d-Y')|default('Unknown') }}</p>
 
 				<p>
+					<strong>Date:</strong>
+					{{ sighting.meta('owl_date_spotted')|date('m-d-Y')|default('Unknown') }}
+				</p>
+
+				{% set protected_species = [
+        'Northern Spotted Owl',
+        'Long-eared Owl',
+        'Short-eared Owl',
+        'Burrowing Owl',
+        'Great Gray Owl',
+        'Flammulated Owl'
+      ] %}
+
+				{% set species_name = sighting.meta('owl_species') %}
+				<p>
 					<strong>WA County:</strong>
-					{% set is_protected = sighting.meta('owl_protected') %}
-					{% if is_protected in ['', '0', false, 0, null] %}
-						{{ sighting.meta('owl_location')|default('Unknown') }}
-					{% else %}
+					{% if species_name in protected_species %}
 						Protected
+					{% else %}
+						{{ sighting.meta('owl_location')|default('Unknown') }}
 					{% endif %}
 				</p>
+
 				<p>
 					<strong>Notes:</strong>
-					{{ sighting.meta('owl_notes')|default('') }}</p>
+					{{ sighting.meta('owl_notes')|default('') }}
+				</p>
 			</div>
 		{% endfor %}
 	{% else %}

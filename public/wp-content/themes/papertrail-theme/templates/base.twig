@@ -81,7 +81,9 @@
   }) }}
 		</aside>
 
-		<main class="page-content"> {% block content %}{% endblock %}
+		<main class="page-content">
+			<div class="main-wrapper"> {% block content %}{% endblock %}
+				</div>
 			</main>
 
 			{{ function('wp_footer') }}
