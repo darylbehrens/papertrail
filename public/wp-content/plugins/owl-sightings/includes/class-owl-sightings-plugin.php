@@ -150,6 +150,50 @@ class OwlSightingsPlugin
     // Return owl info using Wikipedia
     public function get_species_info($request)
     {
-        return fetch_wikipedia_owl_info($request->get_param('species'));
+        return $this->fetch_wikipedia_owl_info($request->get_param('species'));
+    }
+
+    private function fetch_wikipedia_owl_info($species)
+    {
+        $primaryQuery = urlencode($species);
+        $url = "https://en.wikipedia.org/api/rest_v1/page/summary/$primaryQuery";
+
+        $result = $this->wikipedia_request($url);
+
+        if (!$result || empty($result['fact']) || $result['fact'] === 'No summary available.') {
+            $fallback = str_replace(' ', '_', strtolower($species));
+            $url = "https://en.wikipedia.org/api/rest_v1/page/summary/$fallback";
+            error_log("🔁 Retrying with fallback: $url");
+            $result = $this->wikipedia_request($url);
+        }
+
+        return $result ?? [
+            'fact' => "No Wikipedia summary available for '$species'.",
+            'image' => null,
+        ];
+    }
+
+    private function wikipedia_request($url)
+    {
+        $response = wp_remote_get($url, [
+            'timeout' => 15,
+            'sslverify' => false,
+        ]);
+
+        if (is_wp_error($response)) {
+            error_log("🛑 Wikipedia request error: " . $response->get_error_message());
+            return null;
+        }
+
+        $data = json_decode(wp_remote_retrieve_body($response), true);
+
+        if (isset($data['type']) && $data['type'] === 'standard') {
+            return [
+                'fact' => $data['extract'] ?? 'No summary available.',
+                'image' => $data['thumbnail']['source'] ?? null,
+            ];
+        }
+
+        return null;
     }
 }
