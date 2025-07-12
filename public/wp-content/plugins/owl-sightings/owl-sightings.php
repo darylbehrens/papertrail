@@ -10,6 +10,17 @@
  */
 
 defined('ABSPATH') or die('No script kiddies please!');
+add_action('wp_enqueue_scripts', function () {
+    if (is_page('submit-sightings')) { // Adjust slug if needed
+        wp_enqueue_script(
+            'owl-side-panel-script',
+            plugin_dir_url(__FILE__) . 'assets/js/owl-side-panel.js',
+            [],
+            false,
+            true // load in footer
+        );
+    }
+});
 
 function get_washington_counties()
 {
@@ -55,8 +66,6 @@ function get_washington_counties()
         'Yakima',
     ];
 }
-
-
 
 add_filter('use_curl_transport', '__return_true');
 
@@ -128,7 +137,7 @@ add_shortcode('owl_sightings', function () {
             $id = get_the_ID();
             $species = get_post_meta($id, 'owl_species', true);
             $date_raw = get_post_meta($id, 'owl_date_spotted', true);
-$date = date('m-d-Y', strtotime($date_raw));
+            $date = date('m-d-Y', strtotime($date_raw));
             $notes = get_post_meta($id, 'owl_notes', true);
             $image_url = get_the_post_thumbnail_url($id, 'owl-thumb'); // or 'medium' if you prefer
 
@@ -150,7 +159,6 @@ $date = date('m-d-Y', strtotime($date_raw));
     wp_reset_postdata();
     return ob_get_clean();
 });
-
 
 function owl_sightings_register_post_type()
 {
@@ -223,166 +231,21 @@ function owl_sighting_meta_box_html($post)
         </div>
     </div>
 
-
-
     <p>
         <label for="owl_location">Location:</label><br>
         <input type="text" name="owl_location" id="owl_location" value="<?php echo esc_attr($location); ?>"
             class="regular-text">
     </p>
+
     <p>
         <label for="owl_date_spotted">Date Spotted:</label><br>
         <input type="date" name="owl_date_spotted" id="owl_date_spotted" value="<?php echo esc_attr($date_spotted); ?>">
     </p>
+
     <p>
         <label for="owl_notes">Notes:</label><br>
         <textarea name="owl_notes" id="owl_notes" rows="5" class="large-text"><?php echo esc_textarea($notes); ?></textarea>
     </p>
-
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const owlSelect = document.getElementById('owl_species');
-            const protectedInput = document.getElementById('owl_protected');
-            const lookupBtn = document.getElementById('lookup-owl');
-
-            const sidePanel = document.getElementById('owl_side_panel');
-            const closeBtn = document.getElementById('close_owl_panel');
-            const spinner = document.getElementById('owl_panel_spinner');
-            const contentBox = document.getElementById('owl_panel_content');
-            const img = document.getElementById('owl_panel_img');
-            const summary = document.getElementById('owl_panel_summary');
-            const link = document.getElementById('owl_panel_link');
-
-            if (!owlSelect || !protectedInput || !lookupBtn) return;
-
-            owlSelect.addEventListener('change', () => {
-                const isProtected = owlSelect.selectedOptions[0].dataset.protected === '1';
-                protectedInput.value = isProtected ? '1' : '0';
-            });
-
-            lookupBtn.addEventListener('click', async () => {
-                const species = owlSelect.value;
-                if (!species) return;
-
-                // Reset panel
-                img.src = '';
-                summary.textContent = '';
-                link.href = '#';
-                link.textContent = '';
-                spinner.style.display = 'block';
-                contentBox.style.display = 'none';
-                sidePanel.classList.add('open');
-
-                try {
-                    const url = `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(species)}`;
-                    const response = await fetch(url);
-                    if (!response.ok) throw new Error('Wiki fetch failed');
-                    const data = await response.json();
-
-                    if (data.thumbnail?.source) {
-                        img.src = data.thumbnail.source;
-                        img.alt = species;
-                    }
-
-                    summary.textContent = data.extract;
-                    link.href = data.content_urls.desktop.page;
-                    link.textContent = 'Read more on Wikipedia';
-
-                    contentBox.style.display = 'block';
-                } catch (err) {
-                    summary.textContent = 'No information found for this owl.';
-                    contentBox.style.display = 'block';
-                } finally {
-                    spinner.style.display = 'none';
-                }
-            });
-
-            closeBtn.addEventListener('click', () => {
-                sidePanel.classList.remove('open');
-            });
-        });
-    </script>
-
-    <style>
-        #owl_side_panel {
-            position: fixed;
-            top: 0;
-            right: -400px;
-            width: 350px;
-            height: 100%;
-            background: #f8f9fa;
-            /* soft gray */
-            box-shadow: -4px 0 12px rgba(0, 0, 0, 0.2);
-            padding: 0;
-            transition: right 0.3s ease-in-out;
-            overflow-y: auto;
-            z-index: 10000;
-            border-left: 1px solid #ddd;
-        }
-
-        #owl_side_panel.open {
-            right: 0;
-        }
-
-        #owl_side_panel_inner {
-            padding: 1.5rem;
-            font-family: system-ui, sans-serif;
-        }
-
-        #close_owl_panel {
-            position: absolute;
-            top: 10px;
-            right: 15px;
-            background: none;
-            border: none;
-            font-size: 1.8rem;
-            font-weight: bold;
-            color: #444;
-            cursor: pointer;
-        }
-
-        #owl_panel_spinner {
-            text-align: center;
-            padding: 2rem;
-            font-size: 1.1rem;
-            color: #666;
-            display: none;
-        }
-
-        #owl_panel_img {
-            max-width: 100%;
-            height: auto;
-            margin: 1rem 0;
-            border-radius: 4px;
-        }
-
-        #owl_panel_summary {
-            font-size: 0.95rem;
-            line-height: 1.5;
-            color: #333;
-        }
-
-        #owl_panel_link {
-            display: inline-block;
-            margin-top: 1rem;
-            font-weight: bold;
-            color: #0066cc;
-            text-decoration: none;
-        }
-
-        #owl_panel_link:hover {
-            text-decoration: underline;
-        }
-
-        #owl_side_panel_inner {
-            padding: 1.5rem;
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-        }
-    </style>
-
-
 <?php
 }
 
@@ -417,8 +280,6 @@ function owl_sighting_save_meta_boxes($post_id)
         update_post_meta($post_id, 'owl_notes', sanitize_textarea_field($_POST['owl_notes']));
 }
 
-
-
 add_action('rest_api_init', function () {
     register_rest_route('owl/v1', '/species', [
         'methods' => 'GET',
@@ -435,20 +296,20 @@ add_action('rest_api_init', function () {
 function get_fake_owl_species()
 {
     $pnw_owls = [
-    ['name' => 'Barn Owl', 'protected' => false],
-    ['name' => 'Barred Owl', 'protected' => false],
-    ['name' => 'Burrowing Owl', 'protected' => true],
-    ['name' => 'Flammulated Owl', 'protected' => true],
-    ['name' => 'Great Gray Owl', 'protected' => true],
-    ['name' => 'Great Horned Owl', 'protected' => false],
-    ['name' => 'Long-eared Owl', 'protected' => true],
-    ['name' => 'Northern Pygmy-Owl', 'protected' => false],
-    ['name' => 'Northern Saw-whet Owl', 'protected' => false],
-    ['name' => 'Northern Spotted Owl', 'protected' => true],
-    ['name' => 'Short-eared Owl', 'protected' => true],
-    ['name' => 'Snowy Owl', 'protected' => false],
-    ['name' => 'Western Screech-Owl', 'protected' => false],
-];
+        ['name' => 'Barn Owl', 'protected' => false],
+        ['name' => 'Barred Owl', 'protected' => false],
+        ['name' => 'Burrowing Owl', 'protected' => true],
+        ['name' => 'Flammulated Owl', 'protected' => true],
+        ['name' => 'Great Gray Owl', 'protected' => true],
+        ['name' => 'Great Horned Owl', 'protected' => false],
+        ['name' => 'Long-eared Owl', 'protected' => true],
+        ['name' => 'Northern Pygmy-Owl', 'protected' => false],
+        ['name' => 'Northern Saw-whet Owl', 'protected' => false],
+        ['name' => 'Northern Spotted Owl', 'protected' => true],
+        ['name' => 'Short-eared Owl', 'protected' => true],
+        ['name' => 'Snowy Owl', 'protected' => false],
+        ['name' => 'Western Screech-Owl', 'protected' => false],
+    ];
 
     // Sort by name
     usort($pnw_owls, fn($a, $b) => strcmp($a['name'], $b['name']));
@@ -459,16 +320,11 @@ function get_fake_owl_species()
     }, $pnw_owls);
 }
 
-
-
 function get_fake_owl_info($request)
 {
     $species = $request->get_param('species');
     return fetch_wikipedia_owl_info($species);
 }
-
-
-
 
 function fetch_wikipedia_owl_info($species)
 {
@@ -516,8 +372,6 @@ function wikipedia_request($url)
     return null;
 }
 
-
-
 register_activation_hook(__FILE__, 'flush_owl_rewrites');
 function flush_owl_rewrites()
 {
@@ -533,20 +387,20 @@ add_shortcode('owl_sighting_form', function () {
 
     // List of PNW Owls and their protection status
     $pnw_owls = [
-    ['name' => 'Barn Owl', 'protected' => false],
-    ['name' => 'Barred Owl', 'protected' => false],
-    ['name' => 'Burrowing Owl', 'protected' => true],
-    ['name' => 'Flammulated Owl', 'protected' => true],
-    ['name' => 'Great Gray Owl', 'protected' => true],
-    ['name' => 'Great Horned Owl', 'protected' => false],
-    ['name' => 'Long-eared Owl', 'protected' => true],
-    ['name' => 'Northern Pygmy-Owl', 'protected' => false],
-    ['name' => 'Northern Saw-whet Owl', 'protected' => false],
-    ['name' => 'Northern Spotted Owl', 'protected' => true],
-    ['name' => 'Short-eared Owl', 'protected' => true],
-    ['name' => 'Snowy Owl', 'protected' => false],
-    ['name' => 'Western Screech-Owl', 'protected' => false],
-];
+        ['name' => 'Barn Owl', 'protected' => false],
+        ['name' => 'Barred Owl', 'protected' => false],
+        ['name' => 'Burrowing Owl', 'protected' => true],
+        ['name' => 'Flammulated Owl', 'protected' => true],
+        ['name' => 'Great Gray Owl', 'protected' => true],
+        ['name' => 'Great Horned Owl', 'protected' => false],
+        ['name' => 'Long-eared Owl', 'protected' => true],
+        ['name' => 'Northern Pygmy-Owl', 'protected' => false],
+        ['name' => 'Northern Saw-whet Owl', 'protected' => false],
+        ['name' => 'Northern Spotted Owl', 'protected' => true],
+        ['name' => 'Short-eared Owl', 'protected' => true],
+        ['name' => 'Snowy Owl', 'protected' => false],
+        ['name' => 'Western Screech-Owl', 'protected' => false],
+    ];
 
     // 🔥 Form submission handler
     if (
@@ -554,9 +408,6 @@ add_shortcode('owl_sighting_form', function () {
         isset($_POST['owl_sighting_nonce']) &&
         wp_verify_nonce($_POST['owl_sighting_nonce'], 'submit_owl_sighting')
     ) {
-
-
-
 
         $title = sanitize_text_field($_POST['owl_species']);
         $location = sanitize_text_field($_POST['owl_location']);
@@ -630,45 +481,8 @@ add_shortcode('owl_sighting_form', function () {
             </div>
         </div>
 
-
         <div id="wiki-result" style="margin-top: 1rem; border: 1px solid #ccc; padding: 1em; display: none;"></div>
-
-
-        <script>
-            document.addEventListener('DOMContentLoaded', () => {
-                const owlSelect = document.getElementById('owl_species');
-                const lookupBtn = document.getElementById('lookup-owl');
-                const resultDiv = document.getElementById('wiki-result');
-
-                if (!owlSelect || !lookupBtn || !resultDiv) return;
-
-                lookupBtn.addEventListener('click', async () => {
-                    const species = owlSelect.value;
-                    resultDiv.innerHTML = "🔍 Searching Wikipedia...";
-
-                    try {
-                        const res = await fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(species)}`);
-                        const data = await res.json();
-
-                        let html = `<strong>${data.title}</strong><br>`;
-                        if (data.thumbnail?.source) {
-                            html += `<img src="${data.thumbnail.source}" style="max-width:200px;"><br>`;
-                        }
-                        html += `<p>${data.extract}</p>`;
-                        html += `<p><a href="${data.content_urls.desktop.page}" target="_blank">Read more</a></p>`;
-
-                        resultDiv.style.display = "block";
-                        resultDiv.innerHTML = html;
-                    } catch (err) {
-                        resultDiv.innerHTML = "❌ Failed to fetch Wikipedia info.";
-                        console.error(err);
-                    }
-                });
-            });
-        </script>
-
         <input type="hidden" name="owl_protected" id="protected_species" value="0">
-
 
         <div class="form-group">
             <label for="owl_location">County (Washington only)</label>
@@ -682,8 +496,6 @@ add_shortcode('owl_sighting_form', function () {
                 ?>
             </select>
         </div>
-
-
 
         <div class="form-group">
             <label for="owl_date_spotted">Date Spotted</label>
@@ -716,7 +528,6 @@ add_shortcode('owl_sighting_form', function () {
                 </div>
             </div>
         </div>
-
     </form>
 <?php
     return ob_get_clean();
