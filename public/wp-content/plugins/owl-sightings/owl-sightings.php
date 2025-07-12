@@ -12,6 +12,8 @@
  // Grab hardcoded data for select boxes. In future would be in a DB or grabbed from an API
 require_once plugin_dir_path(__FILE__) . 'includes/owl-data.php';
 require_once plugin_dir_path(__FILE__) . 'includes/county-utils.php';
+require_once plugin_dir_path(__FILE__) . 'includes/class-owl-meta-box.php';
+
 
 // Basic security: prevents this file from being run outside of WordPress
 defined('ABSPATH') or die('No script kiddies please!');
@@ -132,21 +134,6 @@ add_shortcode('owl_sightings', function () {
     return ob_get_clean(); // Return the captured output
 });
 
-// Register a meta box for owl sighting details
-add_action('add_meta_boxes', 'owl_sighting_add_meta_boxes');
-
-function owl_sighting_add_meta_boxes()
-{
-    add_meta_box(
-        'owl_sighting_details',                // HTML ID
-        'Owl Sighting Details',             // Title in UI
-        'owl_sighting_meta_box_html',    // Callback function to render box
-        'owl_sighting',                    // Post type it's for
-        'normal',                         // Context
-        'high'                           // Priority
-    );
-}
-
 // Renders the content of the meta box in the editor
 function owl_sighting_meta_box_html($post)
 {
@@ -216,4 +203,5 @@ require_once plugin_dir_path(__FILE__) . 'includes/class-owl-sightings-plugin.ph
 // Instantiate the plugin class on plugins_loaded
 add_action('plugins_loaded', function () {
     new OwlSightingsPlugin();
+    new OwlSightingMetaBox();
 });
