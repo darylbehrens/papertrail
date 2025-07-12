@@ -9,6 +9,10 @@
  * License: GPL2
  */
 
+ // Grab hardcoded data for select boxes. In future would be in a DB or grabbed from an API
+require_once plugin_dir_path(__FILE__) . 'includes/owl-data.php';
+require_once plugin_dir_path(__FILE__) . 'includes/county-utils.php';
+
 // Basic security: prevents this file from being run outside of WordPress
 defined('ABSPATH') or die('No script kiddies please!');
 
@@ -24,52 +28,6 @@ add_action('wp_enqueue_scripts', function () {
         );
     }
 });
-
-// Helper function that returns a list of all Washington counties (used in county dropdown)
-function get_washington_counties()
-{
-    return [
-        'Adams',
-        'Asotin',
-        'Benton',
-        'Chelan',
-        'Clallam',
-        'Clark',
-        'Columbia',
-        'Cowlitz',
-        'Douglas',
-        'Ferry',
-        'Franklin',
-        'Garfield',
-        'Grant',
-        'Grays Harbor',
-        'Island',
-        'Jefferson',
-        'King',
-        'Kitsap',
-        'Kittitas',
-        'Klickitat',
-        'Lewis',
-        'Lincoln',
-        'Mason',
-        'Okanogan',
-        'Pacific',
-        'Pend Oreille',
-        'Pierce',
-        'San Juan',
-        'Skagit',
-        'Skamania',
-        'Snohomish',
-        'Spokane',
-        'Stevens',
-        'Thurston',
-        'Wahkiakum',
-        'Walla Walla',
-        'Whatcom',
-        'Whitman',
-        'Yakima',
-    ];
-}
 
 // This filter ensures curl is allowed for remote requests (like Wikipedia API calls)
 add_filter('use_curl_transport', '__return_true');
@@ -342,21 +300,7 @@ add_action('rest_api_init', function () {
 // Returns a list of PNW owls with protection status
 function get_fake_owl_species()
 {
-    $pnw_owls = [
-        ['name' => 'Barn Owl', 'protected' => false],
-        ['name' => 'Barred Owl', 'protected' => false],
-        ['name' => 'Burrowing Owl', 'protected' => true],
-        ['name' => 'Flammulated Owl', 'protected' => true],
-        ['name' => 'Great Gray Owl', 'protected' => true],
-        ['name' => 'Great Horned Owl', 'protected' => false],
-        ['name' => 'Long-eared Owl', 'protected' => true],
-        ['name' => 'Northern Pygmy-Owl', 'protected' => false],
-        ['name' => 'Northern Saw-whet Owl', 'protected' => false],
-        ['name' => 'Northern Spotted Owl', 'protected' => true],
-        ['name' => 'Short-eared Owl', 'protected' => true],
-        ['name' => 'Snowy Owl', 'protected' => false],
-        ['name' => 'Western Screech-Owl', 'protected' => false],
-    ];
+    $pnw_owls = get_pnw_owls();
 
     // Sort the array alphabetically by name
     usort($pnw_owls, fn($a, $b) => strcmp($a['name'], $b['name']));
@@ -442,21 +386,7 @@ add_shortcode('owl_sighting_form', function () {
     }
 
     // Static list of PNW owls for form dropdown
-    $pnw_owls = [
-        ['name' => 'Barn Owl', 'protected' => false],
-        ['name' => 'Barred Owl', 'protected' => false],
-        ['name' => 'Burrowing Owl', 'protected' => true],
-        ['name' => 'Flammulated Owl', 'protected' => true],
-        ['name' => 'Great Gray Owl', 'protected' => true],
-        ['name' => 'Great Horned Owl', 'protected' => false],
-        ['name' => 'Long-eared Owl', 'protected' => true],
-        ['name' => 'Northern Pygmy-Owl', 'protected' => false],
-        ['name' => 'Northern Saw-whet Owl', 'protected' => false],
-        ['name' => 'Northern Spotted Owl', 'protected' => true],
-        ['name' => 'Short-eared Owl', 'protected' => true],
-        ['name' => 'Snowy Owl', 'protected' => false],
-        ['name' => 'Western Screech-Owl', 'protected' => false],
-    ];
+    $pnw_owls = get_pnw_owls();
 
     // 🔥 Handle form submission
     if (
